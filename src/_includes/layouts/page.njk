@@ -1,0 +1,18 @@
+---
+layout: layouts/base.njk
+---
+<section class="page-hero">
+  <div class="wrap wrap--narrow">
+    {%- if eyebrow %}<span class="eyebrow">{{ eyebrow }}</span>{% endif %}
+    <h1 class="h-lg">{{ heading or title }}</h1>
+    {%- if intro %}<p class="lead">{{ intro }}</p>{% endif %}
+    {%- if updated %}<p class="muted" style="font-size:14px">Atualizado em {{ updated | dateBR }}</p>{% endif %}
+  </div>
+</section>
+<section class="section section--tight">
+  <div class="wrap wrap--narrow">
+    <div class="prose">
+{{ content | safe }}
+    </div>
+  </div>
+</section>

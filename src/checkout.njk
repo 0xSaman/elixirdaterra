@@ -1,0 +1,274 @@
+---
+layout: layouts/base.njk
+permalink: /checkout/
+title: Finalizar compra
+noindex: true
+minimalChrome: true
+bodyClass: checkout-page
+styles: ["/assets/css/checkout.css"]
+scripts: ["/assets/js/checkout.js"]
+eleventyExcludeFromCollections: true
+---
+{%- from "partials/icons.njk" import icon -%}
+{%- set pct = catalog.settings.pixDiscountPercent -%}
+<!-- Mercado Pago: SDK (cartão com campos seguros) + antifraude -->
+<script src="https://sdk.mercadopago.com/js/v2" defer></script>
+<script src="https://www.mercadopago.com/v2/security.js" view="checkout" defer></script>
+
+<div class="demo-banner" id="demo-banner" hidden><b>Modo demonstração</b> · nenhum pagamento é processado. Configure as chaves do Mercado Pago na Netlify para ativar as vendas.</div>
+
+<button type="button" class="summary-toggle" id="summary-toggle" aria-expanded="false" aria-controls="summary">
+  <span class="st-left">{{ icon("cart", 18) }}<span class="st-label">Ver resumo do pedido</span><svg class="st-chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></span>
+  <b class="st-total" data-bind="total">R$ 0,00</b>
+</button>
+
+<div class="wrap co-layout" id="checkout-view">
+  <section class="co-main" aria-label="Dados da compra">
+    <h1 class="sr-only">Finalizar compra</h1>
+    <ol class="progress" aria-label="Etapas">
+      <li class="is-active" data-progress="1"><span>1</span>Identificação</li>
+      <li data-progress="2"><span>2</span>Entrega</li>
+      <li data-progress="3"><span>3</span>Pagamento</li>
+    </ol>
+
+    <form id="checkout-form" novalidate autocomplete="on">
+      <fieldset class="step is-open" data-step="1">
+        <legend class="sr-only">Identificação</legend>
+        <div class="step-head">
+          <span class="step-num">1</span>
+          <div class="step-title"><h2>Identificação</h2><p class="step-hint" data-login-hint>Para emitir a nota e enviar atualizações do pedido · <a href="/conta/" data-login-link>Já tem conta? Entrar</a></p><p class="step-summary" data-summary="1"></p></div>
+          <button type="button" class="step-edit" data-edit="1">Alterar</button>
+        </div>
+        <div class="step-body">
+          <div class="cfield"><label for="email">E-mail</label><input id="email" type="email" autocomplete="email" inputmode="email" placeholder="seu@email.com" required><p class="cfield-msg" aria-live="polite"></p></div>
+          <div class="cfield"><label for="name">Nome completo</label><input id="name" type="text" autocomplete="name" placeholder="Como no documento" required><p class="cfield-msg"></p></div>
+          <div class="row-2">
+            <div class="cfield"><label for="cpf">CPF</label><input id="cpf" type="text" inputmode="numeric" autocomplete="off" placeholder="000.000.000-00" maxlength="14" required><p class="cfield-msg"></p></div>
+            <div class="cfield"><label for="phone">Celular (WhatsApp)</label><input id="phone" type="tel" inputmode="tel" autocomplete="tel-national" placeholder="(00) 00000-0000" maxlength="15" required><p class="cfield-msg"></p></div>
+          </div>
+          <label class="check"><input type="checkbox" id="optin" checked> Quero receber novidades e conteúdos por e-mail</label>
+          <button type="button" class="btn btn--dark btn--block" data-next="1">Continuar para entrega {{ icon("arrow", 18) }}</button>
+        </div>
+      </fieldset>
+
+      <fieldset class="step" data-step="2" disabled>
+        <legend class="sr-only">Entrega</legend>
+        <div class="step-head">
+          <span class="step-num">2</span>
+          <div class="step-title"><h2>Entrega</h2><p class="step-hint">Preencha depois da identificação</p><p class="step-summary" data-summary="2"></p></div>
+          <button type="button" class="step-edit" data-edit="2">Alterar</button>
+        </div>
+        <div class="step-body">
+          <div class="row-cep">
+            <div class="cfield"><label for="cep">CEP</label><input id="cep" type="text" inputmode="numeric" autocomplete="postal-code" placeholder="00000-000" maxlength="9" required><p class="cfield-msg"></p></div>
+            <a class="cep-help" href="https://buscacepinter.correios.com.br/app/endereco/index.php" target="_blank" rel="noopener">Não sei meu CEP</a>
+          </div>
+          <div id="addr-fields" hidden>
+            <div class="cfield"><label for="street">Endereço</label><input id="street" type="text" autocomplete="address-line1" placeholder="Rua, avenida…" required><p class="cfield-msg"></p></div>
+            <div class="row-2 row-2--num">
+              <div class="cfield"><label for="number">Número</label><input id="number" type="text" inputmode="numeric" placeholder="123 ou S/N" required><p class="cfield-msg"></p></div>
+              <div class="cfield"><label for="complement">Complemento <span class="opt">(opcional)</span></label><input id="complement" type="text" autocomplete="address-line2" placeholder="Apto, bloco, referência"></div>
+            </div>
+            <div class="cfield"><label for="district">Bairro</label><input id="district" type="text" autocomplete="address-level3" required><p class="cfield-msg"></p></div>
+            <div class="row-2 row-2--city">
+              <div class="cfield"><label for="city">Cidade</label><input id="city" type="text" autocomplete="address-level2" required><p class="cfield-msg"></p></div>
+              <div class="cfield"><label for="uf">UF</label>
+                <select id="uf" autocomplete="address-level1" required><option value="">—</option>{% for uf in ["AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"] %}<option>{{ uf }}</option>{% endfor %}</select>
+                <p class="cfield-msg"></p></div>
+            </div>
+            <div class="ship-block">
+              <p class="ship-block__title">Forma de entrega</p>
+              <div class="ship-options" id="ship-options" role="radiogroup" aria-label="Forma de entrega"></div>
+            </div>
+          </div>
+          <button type="button" class="btn btn--dark btn--block" data-next="2">Continuar para pagamento {{ icon("arrow", 18) }}</button>
+        </div>
+      </fieldset>
+
+      <fieldset class="step" data-step="3" disabled>
+        <legend class="sr-only">Pagamento</legend>
+        <div class="step-head">
+          <span class="step-num">3</span>
+          <div class="step-title"><h2>Pagamento</h2><p class="step-hint">Escolha como prefere pagar</p></div>
+        </div>
+        <div class="step-body">
+          <div class="pay-methods" role="radiogroup" aria-label="Forma de pagamento">
+            <div class="pay-method is-selected" data-method="pix">
+              <label class="pm-head">
+                <input type="radio" name="method" value="pix" checked>
+                <span class="radio-dot" aria-hidden="true"></span>
+                <span class="pm-icon pm-icon--pix" aria-hidden="true">{{ icon("pix", 22, 2.2) }}</span>
+                <span class="pm-text"><b>Pix</b><small>Aprovação imediata</small></span>
+                {% if pct > 0 %}<span class="pm-badge" data-bind="pixBadge">{{ pct }}% OFF</span>{% endif %}
+              </label>
+              <div class="pm-body">
+                <ul class="pm-perks">
+                  {% if pct > 0 %}<li>{{ icon("check", 16, 2.8) }}<span>Você economiza <b data-bind="pixSavings">R$ 0,00</b> com o desconto de <b data-bind="pixPercent">{{ pct }}%</b></span></li>{% endif %}
+                  <li>{{ icon("check", 16, 2.8) }}<span>Pedido liberado para envio assim que o pagamento cai</span></li>
+                  <li>{{ icon("check", 16, 2.8) }}<span>QR Code e código copia e cola válidos por 30 minutos</span></li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="pay-method" data-method="card">
+              <label class="pm-head">
+                <input type="radio" name="method" value="card">
+                <span class="radio-dot" aria-hidden="true"></span>
+                <span class="pm-icon" aria-hidden="true">{{ icon("card", 22) }}</span>
+                <span class="pm-text"><b>Cartão de crédito</b><small data-bind="cardHint">Até 12x</small></span>
+                <span class="card-brands" aria-label="Bandeiras aceitas"><i>VISA</i><i>MASTER</i><i>ELO</i><i>AMEX</i></span>
+              </label>
+              <div class="pm-body">
+                <div class="card-form" id="card-form">
+                  <div class="cfield"><label for="mp-cardNumber">Número do cartão</label><div class="secure-input" id="mp-cardNumber"></div><span class="brand-chip" id="brand-chip" hidden></span><p class="cfield-msg"></p></div>
+                  <div class="cfield"><label for="cardholderName">Nome impresso no cartão</label><input id="cardholderName" type="text" autocomplete="cc-name" placeholder="Como aparece no cartão"><p class="cfield-msg"></p></div>
+                  <div class="row-2">
+                    <div class="cfield"><label for="mp-expirationDate">Validade</label><div class="secure-input" id="mp-expirationDate"></div><p class="cfield-msg"></p></div>
+                    <div class="cfield"><label for="mp-securityCode">Código de segurança (CVV)</label><div class="secure-input" id="mp-securityCode"></div><p class="cfield-msg"></p></div>
+                  </div>
+                  <div class="cfield" id="issuer-field" hidden><label for="issuer">Banco emissor</label><select id="issuer"></select></div>
+                  <div class="cfield"><label for="installments">Parcelas</label><select id="installments"><option value="">Digite o número do cartão</option></select><p class="cfield-msg"></p></div>
+                  <select id="identificationType" hidden aria-hidden="true" tabindex="-1"></select>
+                  <input id="identificationNumber" type="hidden">
+                  <input id="cardholderEmail" type="hidden">
+                  <p class="secure-note">{{ icon("lock", 14, 2.4) }} Os dados do cartão são criptografados pelo Mercado Pago e não ficam armazenados na loja.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="pay-method" data-method="boleto">
+              <label class="pm-head">
+                <input type="radio" name="method" value="boleto">
+                <span class="radio-dot" aria-hidden="true"></span>
+                <span class="pm-icon" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 5v14M7 5v14M10 5v14M14 5v14M17 5v14M21 5v14"/></svg></span>
+                <span class="pm-text"><b>Boleto bancário</b><small>Compensa em 1 a 2 dias úteis</small></span>
+              </label>
+              <div class="pm-body">
+                <ul class="pm-perks pm-perks--neutral">
+                  <li>Vencimento em 3 dias. Pague no app do banco, internet banking ou lotérica.</li>
+                  <li>O envio acontece depois da confirmação do pagamento.</li>
+                  <li>Quer receber mais rápido? No Pix a aprovação é imediata.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="alert alert--error" id="form-alert" role="alert" hidden></div>
+
+          <button type="submit" class="btn btn--primary btn--block btn-pay" id="btn-pay"><span class="btn-pay-label">Gerar Pix</span><span class="spinner" aria-hidden="true"></span></button>
+          <p class="legal">Ao finalizar, você concorda com os <a href="/politicas/termos-de-uso/" target="_blank">Termos de uso</a> e a <a href="/politicas/privacidade/" target="_blank">Política de privacidade</a>. Você pode desistir da compra em até 7 dias após o recebimento.</p>
+        </div>
+      </fieldset>
+    </form>
+  </section>
+
+  <aside class="co-summary" id="summary" aria-label="Resumo do pedido">
+    <div class="summary-card">
+      <h2 class="summary-title">Resumo do pedido</h2>
+      <ul class="co-items" id="co-items"></ul>
+      <div class="co-empty" id="co-empty" hidden>
+        <p>Seu carrinho está vazio. Escolha uma opção:</p>
+        <div class="kit-options" id="kit-options"></div>
+      </div>
+      <div id="co-upsell"></div>
+      <div class="coupon">
+        <button type="button" class="coupon-toggle" id="coupon-toggle" aria-expanded="false">{{ icon("tag", 16) }} Tem um cupom de desconto?</button>
+        <div class="coupon-form" id="coupon-form" hidden>
+          <input id="coupon-input" type="text" placeholder="Código do cupom" autocomplete="off" autocapitalize="characters" aria-label="Código do cupom">
+          <button type="button" class="btn btn--dark btn--sm" id="coupon-apply">Aplicar</button>
+        </div>
+        <p class="coupon-msg" id="coupon-msg" aria-live="polite"></p>
+        <div class="coupon-chip" id="coupon-chip" hidden><span></span><button type="button" aria-label="Remover cupom">×</button></div>
+      </div>
+      <dl class="totals">
+        <div><dt>Subtotal</dt><dd data-bind="subtotal">R$ 0,00</dd></div>
+        <div class="t-discount" data-row="coupon" hidden><dt>Cupom</dt><dd data-bind="couponDiscount">− R$ 0,00</dd></div>
+        <div class="t-discount" data-row="pix" hidden><dt>Desconto Pix</dt><dd data-bind="pixDiscount">− R$ 0,00</dd></div>
+        <div><dt>Frete</dt><dd data-bind="shipping" class="is-pending">Informe o CEP</dd></div>
+        <div class="t-total"><dt>Total</dt><dd data-bind="total">R$ 0,00</dd></div>
+      </dl>
+      <p class="total-note" data-bind="totalNote"></p>
+    </div>
+    <ul class="co-trust">
+      <li>{{ icon("shield", 20, 1.8) }}<span><b>Pagamento seguro</b>Processado pelo Mercado Pago</span></li>
+      <li>{{ icon("truck", 20, 1.8) }}<span><b>Envio com rastreio</b>Correios e transportadoras</span></li>
+      <li>{{ icon("return", 20, 1.8) }}<span><b>Compra garantida</b>7 dias para desistir</span></li>
+    </ul>
+    <a class="help-link" href="https://wa.me/{{ site.whatsapp }}?text={{ 'Olá! Tenho uma dúvida sobre o checkout.' | urlencode }}" target="_blank" rel="noopener">{{ icon("whatsapp", 18) }} Precisa de ajuda? Fale no WhatsApp</a>
+  </aside>
+</div>
+
+<!-- Telas de resultado -->
+<div class="wrap result" id="result-view" hidden>
+  <section class="result-card" id="result-pix" hidden>
+    <div class="r-icon r-icon--pix">{{ icon("pix", 30, 2.2) }}</div>
+    <h2 class="result-title">Falta pouco! Pague com Pix</h2>
+    <p class="r-sub">Pedido <b data-bind="orderId">#</b> reservado. Ele é confirmado assim que o pagamento cair.</p>
+    <div class="pix-amount"><span>Valor</span><b data-bind="paidAmount">R$ 0,00</b></div>
+    <div class="pix-timer" id="pix-timer">O código expira em <b>30:00</b></div>
+    <div class="pix-grid">
+      <div class="pix-qr"><img id="pix-qr-img" alt="QR Code Pix" width="220" height="220"><p>Abra o app do banco e escaneie</p></div>
+      <div class="pix-copy">
+        <label for="pix-code">Ou use o Pix copia e cola</label>
+        <textarea id="pix-code" readonly rows="4"></textarea>
+        <button type="button" class="btn btn--primary btn--block" id="pix-copy-btn">{{ icon("copy", 18) }} <span>Copiar código Pix</span></button>
+        <ol class="pix-steps"><li>Copie o código acima</li><li>No app do banco, escolha <b>Pix › Copia e cola</b></li><li>Cole, confira o valor e confirme</li></ol>
+      </div>
+    </div>
+    <div class="pix-status" id="pix-status"><span class="pulse-dot"></span>Aguardando o pagamento. Esta tela atualiza sozinha.</div>
+    <div class="btn-row center"><button type="button" class="btn btn--outline btn--sm" id="pix-check-btn">Já paguei</button><button type="button" class="btn btn--outline btn--sm" id="pix-simulate-btn" hidden>Simular pagamento (demo)</button></div>
+    <p class="center" style="margin-top:14px"><button type="button" class="link-btn" id="pix-change-btn">Alterar pedido ou forma de pagamento</button></p>
+  </section>
+
+  <section class="result-card" id="result-boleto" hidden>
+    <div class="r-icon r-icon--neutral"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 5v14M7 5v14M10 5v14M14 5v14M17 5v14M21 5v14"/></svg></div>
+    <h2 class="result-title">Boleto gerado</h2>
+    <p class="r-sub">Pedido <b data-bind="orderId">#</b>. Pague até <b data-bind="boletoDue">—</b> para garantir seu pedido.</p>
+    <div class="pix-amount"><span>Valor</span><b data-bind="paidAmount">R$ 0,00</b></div>
+    <div class="pix-copy pix-copy--full" id="boleto-line-box">
+      <label for="boleto-line">Linha digitável</label>
+      <textarea id="boleto-line" readonly rows="2"></textarea>
+    </div>
+    <div class="btn-row center">
+      <a class="btn btn--primary" id="boleto-open" href="#" target="_blank" rel="noopener">Abrir e imprimir boleto</a>
+      <button type="button" class="btn btn--outline" id="boleto-copy-btn"><span>Copiar código</span></button>
+    </div>
+    <p class="r-note">A compensação leva de 1 a 2 dias úteis. Assim que o pagamento for confirmado, separamos e enviamos seu pedido. <a class="link" data-track-link href="/rastreio/">Acompanhe aqui</a>.</p>
+  </section>
+
+  <section class="result-card" id="result-success" hidden>
+    <div class="r-icon r-icon--ok">{{ icon("check", 34, 3) }}</div>
+    <h2 class="result-title">Pagamento aprovado!</h2>
+    <p class="r-sub">Obrigado, <b data-bind="firstName"></b>! Seu pedido <b data-bind="orderId">#</b> está confirmado.</p>
+    <ol class="mini-timeline">
+      <li class="done"><span></span><b>Pedido confirmado</b><small>Agora</small></li>
+      <li><span></span><b>Em preparação</b><small>Postagem em até 1 dia útil</small></li>
+      <li><span></span><b>A caminho</b><small>Você recebe o código de rastreio por e-mail</small></li>
+    </ol>
+    <p class="r-note">Enviamos a confirmação para <b data-bind="email"></b>.</p>
+    <div class="btn-row center">
+      <a class="btn btn--primary" data-track-link href="/rastreio/">Acompanhar pedido</a>
+      <a class="btn btn--outline" href="/">Voltar para a loja</a>
+    </div>
+    <div class="r-account" data-account-cta hidden>
+      <b>Crie sua conta e acompanhe tudo em um só lugar</b>
+      <span>Pedidos, rastreio e compra rápida da próxima vez.</span>
+      <a class="btn btn--dark btn--sm" data-account-link href="/conta/?criar=1">Criar conta</a>
+    </div>
+  </section>
+
+  <section class="result-card" id="result-review" hidden>
+    <div class="r-icon r-icon--wait">{{ icon("clock", 30, 2.2) }}</div>
+    <h2 class="result-title">Pagamento em análise</h2>
+    <p class="r-sub">Pedido <b data-bind="orderId">#</b>. O Mercado Pago está revisando o pagamento, o que normalmente leva poucos minutos e, no máximo, 2 dias úteis.</p>
+    <p class="r-note">Você não precisa fazer nada agora. Avisaremos por e-mail (<b data-bind="email"></b>) quando for aprovado.</p>
+    <div class="btn-row center"><a class="btn btn--primary" data-track-link href="/rastreio/">Acompanhar pedido</a></div>
+  </section>
+</div>
+
+<footer class="co-footer">
+  <div class="wrap">
+    <div class="pay-row" aria-label="Formas de pagamento"><span>Pix</span><span>Visa</span><span>Mastercard</span><span>Elo</span><span>Boleto</span></div>
+    <p>{{ site.legal.company }} · CNPJ {{ site.legal.cnpj }} · <a href="/politicas/privacidade/">Privacidade</a> · <a href="/politicas/trocas-e-devolucoes/">Trocas</a> · <a href="/politicas/termos-de-uso/">Termos</a></p>
+  </div>
+</footer>

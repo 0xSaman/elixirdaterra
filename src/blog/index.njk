@@ -1,0 +1,53 @@
+---
+layout: layouts/base.njk
+title: Blog — cúrcuma, agrofloresta e bem-estar
+description: "Receitas, guias de uso e o que a ciência diz sobre a cúrcuma (açafrão-da-terra). Artigos com fontes confiáveis, escritos pelo Elixir da Terra."
+seoTitle: "Blog sobre cúrcuma: receitas e guias | Elixir da Terra"
+schemaType: Blog
+---
+{%- set featured = collections.posts[0] -%}
+{%- from "partials/icons.njk" import icon -%}
+{%- set featured = collections.posts | first -%}
+<section class="help-hero blog-hero">
+  <div class="wrap wrap--narrow">
+    <span class="eyebrow">Blog Elixir da Terra</span>
+    <h1 class="h-lg">Conhecimento que vem da raiz</h1>
+    <p class="lead">Receitas, guias de uso e o que a ciência diz sobre a cúrcuma. Textos com fontes, sem promessas milagrosas.</p>
+    <div class="help-tabs" role="tablist" aria-label="Categorias">
+      <button type="button" role="tab" class="help-tab is-active" data-blog-tab="all" aria-selected="true">Todos</button>
+      {%- for c in collections.posts | categories %}
+      <button type="button" role="tab" class="help-tab" data-blog-tab="{{ c | slugify }}" aria-selected="false">{{ c }}</button>
+      {%- endfor %}
+    </div>
+  </div>
+</section>
+<section class="section section--tight">
+  <div class="wrap">
+    <a class="post-card blog-featured" href="{{ featured.url }}" data-cat="{{ featured.data.category | slugify }}">
+      <div class="post-card__img"><img src="{{ featured.data.image }}" alt="{{ featured.data.imageAlt }}" width="800" height="500"></div>
+      <div class="blog-featured__body">
+        <div class="post-card__meta"><span class="blog-pill">Novo</span><span>{{ featured.data.category }}</span><span>·</span><span>{{ featured.templateContent | readingTime }} min de leitura</span></div>
+        <h2 class="h-lg">{{ featured.data.title }}</h2>
+        <p class="lead">{{ featured.data.description }}</p>
+        <span class="link-arrow">Ler artigo {{ icon("arrow", 16) }}</span>
+      </div>
+    </a>
+    <div class="post-grid" id="blog-grid">
+      {%- for post in collections.posts | exclude(featured.url) %}
+      <div class="blog-item" data-cat="{{ post.data.category | slugify }}">{% include "partials/post-card.njk" %}</div>
+      {%- endfor %}
+    </div>
+  </div>
+</section>
+<script>
+(function () {
+  var tabs = [].slice.call(document.querySelectorAll("[data-blog-tab]")), items = [].slice.call(document.querySelectorAll("#blog-grid .blog-item, .blog-featured"));
+  tabs.forEach(function (t) {
+    t.addEventListener("click", function () {
+      var c = t.getAttribute("data-blog-tab");
+      tabs.forEach(function (x) { var on = x === t; x.classList.toggle("is-active", on); x.setAttribute("aria-selected", on ? "true" : "false"); });
+      items.forEach(function (i) { i.hidden = c !== "all" && i.getAttribute("data-cat") !== c; });
+    });
+  });
+})();
+</script>

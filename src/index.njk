@@ -1,0 +1,69 @@
+---
+layout: layouts/base.njk
+description: "Extrato de cúrcuma (açafrão-da-terra) agroecológico, feito à mão em Alfredo Wagner/SC. Kits com desconto, 3x sem juros e frete grátis a partir de 6 frascos."
+preload: ["/assets/img/hero-produto.webp"]
+seoTitle: "Elixir da Terra · Extrato de Cúrcuma Agroecológico"
+---
+{%- from "partials/icons.njk" import icon -%}
+{%- set pct = catalog.settings.pixDiscountPercent -%}
+<script type="application/ld+json">
+{"@context":"https://schema.org","@graph":[
+{"@type":"FAQPage","mainEntity":[{% for item in faq | faqFilter("mix", 6) %}{"@type":"Question","name":{{ item.q | json | safe }},"acceptedAnswer":{"@type":"Answer","text":{{ item.a | json | safe }}}}{% if not loop.last %},{% endif %}{% endfor %}]},
+{"@type":"ItemList","name":"Kits de Extrato de Cúrcuma Elixir da Terra","itemListElement":[{% for v in catalog.variants %}{"@type":"ListItem","position":{{ loop.index }},"url":"{{ site.url }}/extrato-de-curcuma/?kit={{ v.id }}","name":{{ v.title | json | safe }}}{% if not loop.last %},{% endif %}{% endfor %}]}
+]}
+</script>
+
+{% include "partials/banner.njk" %}
+
+
+<section class="section">
+  <div class="wrap">
+    <div class="section-head section-head--center">
+      <div>
+        <h2 class="h-lg">Escolha o seu kit</h2>
+        <p class="muted">Quanto mais frascos, menor o preço de cada um. Frete grátis a partir de {{ catalog.settings.shipping.freeFromUnits }} frascos.</p>
+      </div>
+    </div>
+    <div class="kit-grid">
+      {%- for v in catalog.variants %}
+      <a class="kit-card reveal{% if v.id == 'ritual' %} kit-card--featured{% endif %}" href="/extrato-de-curcuma/?kit={{ v.id }}">
+        {%- if v.badge %}<span class="badge {% if v.id == 'ritual' %}badge--wine{% endif %}">{{ v.badge }}</span>{% endif %}
+        <div class="kit-card__img"><img src="{{ v.image }}" alt="{{ v.title }}" loading="lazy" width="600" height="600"></div>
+        <div class="kit-card__body">
+          {%- set parts = v.name.split(" — ") %}
+          <h3>{{ parts[0] }}</h3>
+          <span class="kit-card__qty">{{ parts[1] }}</span>
+          <div class="price-row">
+            {%- if v.compareAt %}<span class="price-old">{{ v.compareAt | brl }}</span>{% endif %}
+            <span class="price">{{ v.price | brl }}</span>
+          </div>
+          <span class="price-pix"><span class="per-unit">{{ v | perUnit }} por frasco</span><span>ou {{ catalog.settings.installments.noInterest }}x de {{ (v.price / catalog.settings.installments.noInterest) | brl }} sem juros</span></span>
+          {%- if catalog.settings.shipping.freeFromUnits and v.units >= catalog.settings.shipping.freeFromUnits %}<span class="kit-free">{{ icon("truck", 15) }} Frete grátis</span>{% else %}<span class="kit-free kit-free--muted">{{ icon("truck", 15) }} Frete pelo CEP</span>{% endif %}
+          <span class="btn btn--primary btn--block btn--sm kit-card__btn">Comprar</span>
+        </div>
+      </a>
+      {%- endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="section section--sand">
+  <div class="wrap split">
+    <div class="split__media split__media--wide reveal"><img src="/assets/img/frasco-raizes.webp" alt="Frasco do extrato entre raízes frescas de cúrcuma" width="638" height="424" loading="lazy"></div>
+    <div class="split__copy">
+      <span class="eyebrow">Sobre nós</span>
+      <h2 class="h-lg">Cultivado com amor, <em class="text-wine serif-italic">colhido com respeito</em></h2>
+      <p class="lead">Nossa cúrcuma cresce entre árvores, num solo coberto e vivo. Cada lote é preparado e envasado à mão.</p>
+      <p><a class="link-arrow" href="/sobre/">Conheça nossa história {{ icon("arrow", 16) }}</a></p>
+    </div>
+  </div>
+</section>
+
+{% include "partials/reviews.njk" %}
+
+{% include "partials/blog-carousel.njk" %}
+
+{%- set faqGroup = "mix" %}{%- set faqLimit = 6 %}
+{% include "partials/faq-block.njk" %}
+
+{% include "partials/closing-cta.njk" %}

@@ -1,0 +1,111 @@
+---
+layout: layouts/base.njk
+permalink: /painel/
+title: Painel de pedidos
+noindex: true
+minimalChrome: true
+scripts: ["/assets/js/admin.js"]
+eleventyExcludeFromCollections: true
+---
+<section class="section section--tight">
+  <div class="wrap">
+    <div id="login" class="track-card" style="max-width:420px;margin:40px auto">
+      <h1 class="h-md" style="margin-bottom:6px">Painel de pedidos</h1>
+      <p class="muted" style="margin-bottom:20px">Acesso restrito à equipe da loja.</p>
+      <form id="login-form" novalidate>
+        <div class="field"><label for="pw">Senha do painel</label><input id="pw" type="password" autocomplete="current-password" required></div>
+        <div class="alert alert--error" id="login-error" hidden></div>
+        <button class="btn btn--primary btn--block" type="submit">Entrar</button>
+      </form>
+    </div>
+
+    <div id="dash" hidden>
+      <div class="admin-toolbar">
+        <h1 class="h-md">Pedidos</h1>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn--outline btn--sm" type="button" id="refresh">Atualizar</button>
+          <button class="btn btn--outline btn--sm" type="button" id="export">Exportar CSV</button>
+          <button class="btn btn--outline btn--sm" type="button" id="logout">Sair</button>
+        </div>
+      </div>
+      <div class="admin-stats">
+        <div class="stat"><span>Pagos para enviar</span><b data-s="toShip">0</b></div>
+        <div class="stat"><span>Aguardando pagamento</span><b data-s="pending">0</b></div>
+        <div class="stat"><span>Vendas aprovadas (30 dias)</span><b data-s="revenue">R$ 0</b></div>
+        <div class="stat"><span>Pedidos (30 dias)</span><b data-s="count">0</b></div>
+      </div>
+      <div class="admin-toolbar">
+        <div class="filters" role="group" aria-label="Filtrar por status">
+          <button class="chip" type="button" data-filter="all" aria-pressed="true">Todos</button>
+          <button class="chip" type="button" data-filter="toship" aria-pressed="false">Para enviar</button>
+          <button class="chip" type="button" data-filter="pending_payment" aria-pressed="false">Aguardando</button>
+          <button class="chip" type="button" data-filter="shipped" aria-pressed="false">Enviados</button>
+          <button class="chip" type="button" data-filter="delivered" aria-pressed="false">Entregues</button>
+          <button class="chip" type="button" data-filter="cancelled" aria-pressed="false">Cancelados</button>
+        </div>
+        <input id="search" type="search" placeholder="Buscar nome, e-mail ou pedido" style="height:40px;border:1.5px solid var(--line-2);border-radius:999px;padding:0 16px;min-width:0;flex:1 1 220px;max-width:320px">
+      </div>
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead><tr><th>Pedido</th><th>Data</th><th>Cliente</th><th>Itens</th><th>Total</th><th>Pagamento</th><th>Status</th></tr></thead>
+          <tbody id="rows"><tr><td colspan="7" class="muted">Carregando…</td></tr></tbody>
+        </table>
+      </div>
+
+      <div class="admin-grid">
+        <section class="admin-panel">
+          <div class="admin-panel__head">
+            <div><h2 class="h-sm">Carrinhos abandonados</h2><p class="muted">Começaram o checkout há mais de 30 min e não finalizaram. Chame no WhatsApp para ajudar.</p></div>
+            <span class="admin-count" data-s="leads">0</span>
+          </div>
+          <ul class="admin-list" id="leads"><li class="muted">Carregando…</li></ul>
+        </section>
+        <section class="admin-panel">
+          <div class="admin-panel__head">
+            <div><h2 class="h-sm">Lembrar recompra</h2><p class="muted">Clientes que compraram há 18 a 40 dias: o frasco deve estar acabando.</p></div>
+            <span class="admin-count" data-s="reorder">0</span>
+          </div>
+          <ul class="admin-list" id="reorder"><li class="muted">Carregando…</li></ul>
+        </section>
+        <section class="admin-panel">
+          <div class="admin-panel__head">
+            <div><h2 class="h-sm">Cliente esqueceu a senha</h2><p class="muted">Digite o e-mail da conta, gere um link (vale 2 horas) e envie pelo WhatsApp.</p></div>
+          </div>
+          <form id="reset-form" class="reset-form" novalidate>
+            <input id="reset-email" type="email" placeholder="email@cliente.com" autocomplete="off" required>
+            <button class="btn btn--primary btn--sm" type="submit">Gerar link</button>
+          </form>
+          <div id="reset-out" class="reset-out" hidden></div>
+        </section>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="modal" id="modal" hidden role="dialog" aria-modal="true" aria-labelledby="m-title">
+  <div class="modal__panel">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px">
+      <h2 class="h-sm" id="m-title">Pedido</h2>
+      <button class="btn btn--outline btn--sm" type="button" id="m-close">Fechar</button>
+    </div>
+    <div id="m-body" class="stack-sm" style="font-size:14.5px"></div>
+    <hr class="divider">
+    <form id="m-form" class="stack-sm" novalidate>
+      <div class="field"><label for="m-status">Status</label>
+        <select id="m-status">
+          <option value="pending_payment">Aguardando pagamento</option>
+          <option value="paid">Pago</option>
+          <option value="preparing">Em preparação</option>
+          <option value="shipped">Enviado</option>
+          <option value="delivered">Entregue</option>
+          <option value="cancelled">Cancelado</option>
+        </select>
+      </div>
+      <div class="field"><label for="m-code">Código de rastreio</label><input id="m-code" placeholder="Ex.: AA123456789BR" autocapitalize="characters"></div>
+      <div class="field"><label for="m-url">Link de rastreio (opcional, se não for Correios)</label><input id="m-url" type="url" placeholder="https://"></div>
+      <label style="display:flex;gap:8px;align-items:center;font-size:14px"><input type="checkbox" id="m-notify" checked> Avisar o cliente por e-mail ao marcar como enviado</label>
+      <div class="alert alert--error" id="m-error" hidden></div>
+      <button class="btn btn--primary" type="submit">Salvar</button>
+    </form>
+  </div>
+</div>

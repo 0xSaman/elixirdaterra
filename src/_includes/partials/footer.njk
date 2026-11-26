@@ -1,0 +1,54 @@
+{%- from "partials/icons.njk" import icon -%}
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <img src="/assets/img/logo-branco.webp" alt="{{ site.name }}" width="243" height="360" loading="lazy">
+        <p>Extrato de cúrcuma agroecológico, envasado à mão a partir de raízes cultivadas em agrofloresta.</p>
+      </div>
+      <div>
+        <h2 class="footer-h">Loja</h2>
+        <ul>
+          <li><a href="/extrato-de-curcuma/">Extrato de Cúrcuma</a></li>
+          <li><a href="/extrato-de-curcuma/?kit=ritual">Ritual da Terra</a></li>
+          <li><a href="/extrato-de-curcuma/?kit=familia">Elixir da Família</a></li>
+          <li><a href="/rastreio/">Rastrear pedido</a></li>
+          <li><a href="/sobre/">Sobre nós</a></li>
+          <li><a href="/blog/">Blog</a></li>
+        </ul>
+      </div>
+      <div>
+        <h2 class="footer-h">Ajuda</h2>
+        <ul>
+          <li><a href="/perguntas-frequentes/">Perguntas frequentes</a></li>
+          <li><a href="/politicas/entrega/">Entrega e frete</a></li>
+          <li><a href="/politicas/trocas-e-devolucoes/">Trocas e devoluções</a></li>
+          <li><a href="/politicas/privacidade/">Privacidade</a></li>
+          <li><a href="/politicas/termos-de-uso/">Termos de uso</a></li>
+        </ul>
+      </div>
+      <div class="footer-contact">
+        <h2 class="footer-h">Atendimento</h2>
+        <ul class="footer-social">
+          <li><a href="https://wa.me/{{ site.whatsapp }}" target="_blank" rel="noopener">{{ icon("whatsapp", 18) }}<span>{{ site.whatsappDisplay }}</span></a></li>
+          <li><a href="{{ site.instagram }}" target="_blank" rel="noopener">{{ icon("instagram", 18) }}<span>{{ site.instagramHandle }}</span></a></li>
+          <li><a href="mailto:{{ site.email }}">{{ icon("mail", 18) }}<span>{{ site.email }}</span></a></li>
+        </ul>
+        <h2 class="footer-h footer-h--pay">Pagamento</h2>
+        <div class="pay-icons" aria-label="Formas de pagamento"><span>Pix</span><span>Visa</span><span>Mastercard</span><span>Elo</span><span>Boleto</span></div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-legal">
+        <p>{{ site.legal.company }} · CNPJ {{ site.legal.cnpj }}</p>
+        <p>{{ site.legal.address }}</p>
+        <p>Este produto não é um medicamento. As informações do site não substituem a orientação de um profissional de saúde.</p>
+      </div>
+      <div class="footer-bottom__right"><p>© {{ site.year }} {{ site.name }}</p><p>Todos os direitos reservados</p></div>
+    </div>
+    <div class="footer-credit">
+      <span>Criado e desenvolvido por</span>
+      <a href="https://www.instagram.com/gustavo_zart/" target="_blank" rel="noopener" aria-label="Instagram de Gustavo Zart, criador do site">@gustavo_zart</a>
+    </div>
+  </div>
+</footer>

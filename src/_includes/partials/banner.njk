@@ -1,0 +1,105 @@
+{%- from "partials/icons.njk" import icon -%}
+{%- set pct = catalog.settings.pixDiscountPercent -%}
+{%- set ni = catalog.settings.installments.noInterest -%}
+{%- set one = catalog.variants[0] -%}
+{%- set rit = catalog.variants[1] -%}
+{%- set fam = catalog.variants[2] -%}
+<section class="banner" data-banner aria-roledescription="carrossel" aria-label="Ofertas em destaque">
+  <div class="banner__track">
+
+    <div class="banner__slide banner__slide--cream is-active" aria-roledescription="slide" aria-label="1 de 3">
+      <div class="wrap banner__grid">
+        <div class="banner__copy">
+          <h1 class="banner__tag">{{ icon("leaf", 15) }} Extrato de Cúrcuma Agroecológico · 30 ml</h1>
+          <p class="banner__title">Magia líquida, <em>direto da terra.</em></p>
+          <p class="banner__lead">Tintura artesanal de cúrcuma (açafrão-da-terra), feita com raízes de agrofloresta. Basta pingar de 10 a 15 gotas na água, no suco ou no chá.</p>
+          <ul class="banner__checks">
+            <li>{{ icon("check", 16, 2.4) }} 100% natural</li>
+            <li>{{ icon("check", 16, 2.4) }} Feito à mão</li>
+            <li>{{ icon("check", 16, 2.4) }} Até {{ ni }}x sem juros</li>
+          </ul>
+          <div class="banner__buy">
+            <div class="banner__price">
+              <b>{{ one.price | brl }}</b>
+              <span>ou <strong>{{ ni }}x de {{ (one.price / ni) | brl }}</strong> sem juros</span>
+            </div>
+            <a class="btn btn--gold btn--lg" href="/extrato-de-curcuma/">Comprar agora {{ icon("arrow", 18) }}</a>
+          </div>
+        </div>
+        <div class="banner__media" data-parallax>
+          <span class="banner__glow" aria-hidden="true"></span>
+          <span class="spark s1" aria-hidden="true"></span><span class="spark s2" aria-hidden="true"></span><span class="spark s3" aria-hidden="true"></span><span class="spark s4" aria-hidden="true"></span><span class="spark s5" aria-hidden="true"></span>
+          <img class="banner__img" src="/assets/img/hero-produto.webp" srcset="/assets/img/hero-produto-m.webp 480w, /assets/img/hero-produto.webp 948w" sizes="(max-width:600px) 150px, (max-width:860px) 300px, 480px" alt="Frasco e caixa do Extrato de Cúrcuma Elixir da Terra" width="948" height="1169" fetchpriority="high">
+
+        </div>
+      </div>
+    </div>
+
+    <div class="banner__slide banner__slide--wine" aria-roledescription="slide" aria-label="2 de 3">
+      <div class="wrap banner__grid">
+        <div class="banner__copy">
+          <span class="banner__tag banner__tag--light">{{ icon("leaf", 15) }} 3 frascos · {{ rit.badge }}</span>
+          <h2 class="banner__title">Ritual da Terra, <em>{{ rit | perUnit }} o frasco.</em></h2>
+          <p class="banner__lead">De 2 a 3 meses de uso: o tempo certo para a cúrcuma virar parte da sua rotina.</p>
+          <ul class="banner__checks">
+            <li>{{ icon("check", 16, 2.4) }} Economize {{ (rit.compareAt - rit.price) | brl }}</li>
+            <li>{{ icon("check", 16, 2.4) }} 2 a 3 meses de uso</li>
+            <li>{{ icon("check", 16, 2.4) }} Até {{ ni }}x sem juros</li>
+          </ul>
+          <div class="banner__buy">
+            <div class="banner__price">
+              <s>{{ rit.compareAt | brl }}</s><b>{{ rit.price | brl }}</b>
+              <span>ou <strong>{{ ni }}x de {{ (rit.price / ni) | brl }}</strong> sem juros</span>
+            </div>
+            <a class="btn btn--gold btn--lg" href="/extrato-de-curcuma/?kit=ritual">Comprar agora {{ icon("arrow", 18) }}</a>
+          </div>
+        </div>
+        <div class="banner__media" data-parallax>
+          <span class="banner__glow banner__glow--light" aria-hidden="true"></span>
+          <span class="spark s1" aria-hidden="true"></span><span class="spark s2" aria-hidden="true"></span><span class="spark s3" aria-hidden="true"></span><span class="spark s4" aria-hidden="true"></span><span class="spark s5" aria-hidden="true"></span>
+          <img class="banner__img" src="/assets/img/banner-kit3.webp" srcset="/assets/img/banner-kit3-m.webp 400w, /assets/img/banner-kit3.webp 507w" sizes="(max-width:600px) 130px, (max-width:860px) 300px, 480px" alt="Ritual da Terra: 3 frascos de Extrato de Cúrcuma" width="507" height="669" loading="lazy">
+        </div>
+      </div>
+    </div>
+
+    <div class="banner__slide banner__slide--leaf" aria-roledescription="slide" aria-label="3 de 3">
+      <div class="wrap banner__grid">
+        <div class="banner__copy">
+          <span class="banner__tag banner__tag--light">{{ icon("leaf", 15) }} 6 frascos · {{ fam.badge }}</span>
+          <h2 class="banner__title">Elixir da Família, <em>{{ fam | perUnit }} o frasco.</em></h2>
+          <p class="banner__lead">Para a família toda ou de 4 a 6 meses de uso. O menor preço por frasco da loja.</p>
+          <ul class="banner__checks">
+            <li>{{ icon("check", 16, 2.4) }} Economize {{ (fam.compareAt - fam.price) | brl }}</li>
+            <li>{{ icon("check", 16, 2.4) }} Frete grátis</li>
+            <li>{{ icon("check", 16, 2.4) }} Até {{ ni }}x sem juros</li>
+          </ul>
+          <div class="banner__buy">
+            <div class="banner__price">
+              <s>{{ fam.compareAt | brl }}</s><b>{{ fam.price | brl }}</b>
+              <span>ou <strong>{{ ni }}x de {{ (fam.price / ni) | brl }}</strong> sem juros</span>
+            </div>
+            <a class="btn btn--gold btn--lg" href="/extrato-de-curcuma/?kit=familia">Comprar agora {{ icon("arrow", 18) }}</a>
+          </div>
+        </div>
+        <div class="banner__media" data-parallax>
+          <span class="banner__glow banner__glow--light" aria-hidden="true"></span>
+          <span class="spark s1" aria-hidden="true"></span><span class="spark s2" aria-hidden="true"></span><span class="spark s3" aria-hidden="true"></span><span class="spark s4" aria-hidden="true"></span><span class="spark s5" aria-hidden="true"></span>
+          <img class="banner__img" src="/assets/img/banner-kit6.webp" srcset="/assets/img/banner-kit6-m.webp 600w, /assets/img/banner-kit6.webp 807w" sizes="(max-width:600px) 200px, (max-width:860px) 300px, 480px" alt="Elixir da Família: 6 frascos de Extrato de Cúrcuma" width="807" height="700" loading="lazy">
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <button class="banner__arrow banner__arrow--prev" type="button" data-banner-prev aria-label="Banner anterior">{{ icon("chev-left", 22) }}</button>
+  <button class="banner__arrow banner__arrow--next" type="button" data-banner-next aria-label="Próximo banner">{{ icon("chev-right", 22) }}</button>
+  <div class="banner__dots">{% for i in [0,1,2] %}<button type="button" data-banner-dot="{{ i }}" aria-label="Ir para o banner {{ i + 1 }}"><span></span></button>{% endfor %}</div>
+</section>
+
+<section class="trustbar" aria-label="Vantagens">
+  <div class="wrap trustbar__grid">
+    <div class="trustbar__item">{{ icon("truck", 24, 1.7) }}<span><b>Frete grátis</b><small>A partir de {{ catalog.settings.shipping.freeFromUnits }} frascos</small></span></div>
+    <div class="trustbar__item">{{ icon("pix", 24, 1.7) }}<span><b>Pix e boleto</b><small>Pix aprovado na hora</small></span></div>
+    <div class="trustbar__item">{{ icon("card", 24, 1.7) }}<span><b>{{ ni }}x sem juros</b><small>No cartão de crédito</small></span></div>
+    <div class="trustbar__item">{{ icon("shield", 24, 1.7) }}<span><b>Compra segura</b><small>Pagamento via Mercado Pago</small></span></div>
+  </div>
+</section>

@@ -1,0 +1,26 @@
+{%- from "partials/icons.njk" import icon -%}
+<div class="drawer" id="cart-drawer" aria-hidden="true">
+  <div class="drawer__backdrop" data-cart-close></div>
+  <aside class="drawer__panel" role="dialog" aria-modal="true" aria-labelledby="cart-title">
+    <div class="drawer__head">
+      <h2 id="cart-title">Seu carrinho</h2>
+      <button class="icon-btn" type="button" aria-label="Fechar carrinho" data-cart-close>{{ icon("close", 22) }}</button>
+    </div>
+    <div class="drawer__ship">{{ icon("truck", 18) }} <span data-cart-ship>O frete é calculado no checkout pelo seu CEP</span></div>
+    <div class="drawer__body" id="cart-body">
+      <div class="drawer__empty" id="cart-empty">
+        {{ icon("cart", 36, 1.6) }}
+        <p>Seu carrinho está vazio.</p>
+        <a class="btn btn--primary" href="/extrato-de-curcuma/">Conhecer o extrato</a>
+      </div>
+      <div id="cart-lines"></div>
+      <div id="cart-upsell"></div>
+    </div>
+    <div class="drawer__foot" id="cart-foot" hidden>
+      <div class="drawer__total"><span>Subtotal</span><b data-cart-subtotal>R$ 0,00</b></div>
+      <p class="drawer__pix" data-cart-pix></p>
+      <a class="btn btn--primary btn--block" href="/checkout/">Finalizar compra {{ icon("arrow", 18) }}</a>
+      <p class="drawer__note">{{ icon("lock", 13, 2.4) | replace('<svg','<svg style="display:inline;vertical-align:-2px"') | safe }} Pagamento seguro via Mercado Pago · Pix, cartão ou boleto</p>
+    </div>
+  </aside>
+</div>

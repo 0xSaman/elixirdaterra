@@ -1,0 +1,95 @@
+---
+layout: layouts/base.njk
+permalink: /rastreio/
+title: Rastrear pedido
+description: "Acompanhe seu pedido do Elixir da Terra: status do pagamento, preparo, envio e código de rastreio dos Correios. Basta o número do pedido e o e-mail."
+scripts: ["/assets/js/track.js"]
+seoTitle: "Rastrear pedido | Elixir da Terra"
+schemaType: WebPage
+---
+{%- from "partials/icons.njk" import icon -%}
+<section class="page-hero page-hero--magic track-hero">
+  <div class="wrap wrap--narrow">
+    <span class="track-hero__ic">{{ icon("package", 26, 1.6) }}</span>
+    <span class="eyebrow">Acompanhe sua compra</span>
+    <h1 class="h-lg">Rastrear pedido</h1>
+    <p class="lead">Digite o número do pedido e o e-mail da compra para ver cada etapa, do pagamento até a entrega.</p>
+  </div>
+</section>
+<section class="section section--tight">
+  <div class="wrap track-layout">
+    <div class="track-card">
+      <form id="track-form" novalidate>
+        <h2 class="track-card__title">Consultar pedido</h2>
+        <div class="field"><label for="t-order">Número do pedido</label><input id="t-order" name="order" placeholder="EDT-XXXXXXXX" autocomplete="off" autocapitalize="characters" required><p class="field-hint">Começa com EDT-. Aparece na tela de pedido confirmado e em Minha conta.</p></div>
+        <div class="field"><label for="t-email">E-mail da compra</label><input id="t-email" name="email" type="email" autocomplete="email" placeholder="voce@email.com" required></div>
+        <div class="alert alert--error" id="track-error" role="alert" hidden></div>
+        <button class="btn btn--primary btn--block" type="submit" id="track-btn"><span class="label">Rastrear</span><span class="spinner" aria-hidden="true"></span></button>
+      </form>
+      <div class="track-alt">
+        <a class="track-alt__row" href="/conta/">
+          <span class="track-alt__ic">{{ icon("user", 18, 1.7) }}</span>
+          <span><b>Tem conta no site?</b><small>Entre e veja todos os seus pedidos</small></span>
+          {{ icon("chev-right", 16) }}
+        </a>
+        <a class="track-alt__row" href="https://rastreamento.correios.com.br/app/index.php" target="_blank" rel="noopener">
+          <span class="track-alt__ic">{{ icon("truck", 18, 1.7) }}</span>
+          <span><b>Já tem o código de rastreio?</b><small>Consulte direto nos Correios</small></span>
+          {{ icon("chev-right", 16) }}
+        </a>
+      </div>
+    </div>
+
+    <div id="track-result" aria-live="polite">
+      <div class="track-guide" id="track-placeholder">
+        <div class="track-guide__head">
+          <span class="eyebrow">Como funciona</span>
+          <h2 class="track-card__title">As 4 etapas do seu pedido</h2>
+          <p class="muted">Ao consultar, o status atualizado do seu pedido aparece neste espaço, com a etapa atual em destaque.</p>
+        </div>
+        <ol class="track-guide__steps">
+          <li><span class="track-guide__n">01</span><span class="track-guide__ic">{{ icon("card", 18, 1.7) }}</span><b>Pagamento</b><p>Pix e cartão são confirmados na hora. Boleto, em até 2 dias úteis.</p></li>
+          <li><span class="track-guide__n">02</span><span class="track-guide__ic">{{ icon("hand", 18, 1.7) }}</span><b>Preparo</b><p>Separamos e embalamos seu pedido à mão, com cuidado.</p></li>
+          <li><span class="track-guide__n">03</span><span class="track-guide__ic">{{ icon("truck", 18, 1.7) }}</span><b>Envio</b><p>Postamos em até 1 dia útil. O código de rastreio aparece aqui e na sua conta.</p></li>
+          <li><span class="track-guide__n">04</span><span class="track-guide__ic">{{ icon("package", 18, 1.7) }}</span><b>Entrega</b><p>Os Correios entregam no endereço informado na compra.</p></li>
+        </ol>
+        <div class="track-guide__help">
+          <p><b>Precisa de ajuda com o pedido?</b><span>Atendimento pelo WhatsApp. Tenha o número do pedido em mãos.</span></p>
+          <a class="btn btn--wa btn--sm" href="https://wa.me/{{ site.whatsapp }}?text={{ 'Olá! Quero saber sobre o meu pedido.' | urlencode }}" target="_blank" rel="noopener">{{ icon("whatsapp", 16) }} Falar no WhatsApp</a>
+        </div>
+      </div>
+
+      <div class="track-card track-status" id="track-status" hidden>
+        <div class="track-status__head">
+          <div class="stack-sm">
+            <span class="muted" style="font-size:14px">Pedido</span>
+            <h2 class="h-md" data-t="id">#</h2>
+            <span class="muted" style="font-size:14px" data-t="date"></span>
+          </div>
+          <span class="status-pill" data-t="pill">—</span>
+        </div>
+        <div class="tracking-code" id="tracking-box" hidden>
+          <span style="flex:1;min-width:180px"><span class="muted" style="font-size:13px;display:block">Código de rastreio</span><code data-t="code"></code></span>
+          <button class="btn btn--dark btn--sm" type="button" id="copy-code">{{ icon("copy", 16) }} Copiar</button>
+          <a class="btn btn--outline btn--sm" id="code-link" href="https://rastreamento.correios.com.br/app/index.php" target="_blank" rel="noopener">Correios</a>
+          <a class="btn btn--outline btn--sm" id="code-link-2" href="#" target="_blank" rel="noopener">17TRACK</a>
+        </div>
+        <ol class="timeline" id="timeline"></ol>
+        <hr class="divider">
+        <div class="grid-2" style="gap:20px">
+          <div class="stack-sm">
+            <b>Itens</b>
+            <ul class="order-summary-list" id="t-items"></ul>
+          </div>
+          <div class="stack-sm">
+            <b>Entrega</b>
+            <p class="muted" style="font-size:14.5px" data-t="ship"></p>
+            <b style="margin-top:8px">Pagamento</b>
+            <p class="muted" style="font-size:14.5px" data-t="pay"></p>
+          </div>
+        </div>
+        <p class="muted" style="font-size:13.5px">Alguma dúvida? <a class="link" href="https://wa.me/{{ site.whatsapp }}" target="_blank" rel="noopener">Fale com a gente no WhatsApp</a> informando o número do pedido.</p>
+      </div>
+    </div>
+  </div>
+</section>

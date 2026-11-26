@@ -1,0 +1,578 @@
+=====================================================================
+  ELIXIR DA TERRA — GUIA DE PUBLICAÇÃO E INTEGRAÇÃO
+  Loja + checkout (Pix, cartão, boleto) + rastreio + blog + painel
+=====================================================================
+
+Este guia explica, passo a passo, como colocar a loja no ar na Netlify,
+ligar o Mercado Pago e operar os pedidos no dia a dia. Siga na ordem.
+
+---------------------------------------------------------------------
+ÍNDICE
+---------------------------------------------------------------------
+ 1. O que vem no projeto
+ 2. Antes de publicar (checklist obrigatório)
+ 3. Publicar na Netlify
+ 4. Ligar o Mercado Pago (gateway)
+ 5. Testar pagamentos (modo teste)
+ 6. Ir para produção (vender de verdade)
+ 7. Painel de pedidos e rastreio
+ 8. E-mails automáticos (opcional, recomendado)
+ 9. Newsletter e formulário de contato
+10. Blog e SEO (aparecer no Google)
+11. Google Analytics e Meta Pixel (opcional)
+12. Alterar preços, kits e cupons
+13. Testar no seu computador (opcional)
+14. Pontos de atenção legais e de conteúdo  ← LEIA
+15. Como funciona a segurança do pagamento
+16. Problemas comuns
+
+
+---------------------------------------------------------------------
+1. O QUE VEM NO PROJETO
+---------------------------------------------------------------------
+Páginas
+  /                         Página inicial
+  /extrato-de-curcuma/      Página do produto (kits, galeria, prazo por CEP)
+  /checkout/                Checkout em uma página (Pix, cartão, boleto)
+  /rastreio/                Rastreamento do pedido pelo cliente
+  /blog/                    Blog com 6 artigos prontos para o Google
+  /sobre/  /perguntas-frequentes/  /contato/
+  /politicas/...            Entrega, trocas, privacidade, termos
+  /painel/                  Painel de pedidos (só para você, com senha)
+
+Pastas e arquivos importantes
+  shared/catalog.js         PREÇOS, kits, desconto do Pix, parcelas, prazos
+  src/_data/site.js         Nome, e-mail, WhatsApp, Instagram, CNPJ, endereço
+  src/_data/faq.js          Perguntas frequentes
+  src/_data/testimonials.js Depoimentos
+  src/blog/posts/           Artigos do blog (um arquivo .md por artigo)
+  src/assets/img/           Imagens e logos
+  netlify/functions/        Back-end: pagamento, webhook, rastreio, painel
+  netlify.toml              Configuração da Netlify (não precisa mexer)
+
+Tecnologia
+  - Eleventy (gerador de site estático): páginas HTML puras, muito rápidas
+    e ótimas para o Google.
+  - Netlify Functions: o "servidor" que fala com o Mercado Pago.
+  - Netlify Blobs: banco de dados de pedidos (já incluso, sem configurar).
+  - Mercado Pago, API de Pagamentos (Checkout Transparente): o cliente paga
+    sem sair do seu site.
+
+
+---------------------------------------------------------------------
+2. ANTES DE PUBLICAR (CHECKLIST OBRIGATÓRIO)
+---------------------------------------------------------------------
+Abra src/_data/site.js e preencha:
+  [ ] email            → seu e-mail de atendimento
+  [ ] instagram        → link do perfil da marca
+  [ ] instagramHandle  → @ da marca
+  [ ] legal.company    → razão social completa
+  [ ] legal.address    → endereço completo
+      (Razão social, CNPJ e endereço no site são exigidos pelo
+       Decreto 7.962/2013 para lojas online.)
+  [ ] Confira o WhatsApp (já está 48 99614-2907).
+
+Revise também:
+  [ ] src/_data/testimonials.js — use só depoimentos reais e autorizados.
+  [ ] As políticas em src/politicas/ (prazos, reembolso). São modelos
+      sólidos, mas vale uma revisão do seu contador/advogado.
+  [ ] Prazos de entrega por região em shared/catalog.js (shippingEta).
+
+
+---------------------------------------------------------------------
+3. PUBLICAR NA NETLIFY
+---------------------------------------------------------------------
+Importante: o modo "arrastar a pasta" da Netlify NÃO roda as funções de
+pagamento. Use o GitHub (recomendado) ou a linha de comando.
+
+OPÇÃO A — GitHub (recomendado; cada alteração publica sozinha)
+  1. Crie uma conta em github.com e um repositório novo (pode ser privado).
+  2. Envie todos os arquivos desta pasta para o repositório.
+     (No site do GitHub: "Add file" › "Upload files" e arraste tudo,
+      MENOS as pastas node_modules e _site, se existirem.)
+  3. Crie uma conta em netlify.com.
+  4. "Add new project" › "Import an existing project" › GitHub ›
+     escolha o repositório.
+  5. A Netlify lê o netlify.toml sozinha:
+       Build command:      npm run build
+       Publish directory:  _site
+       Functions:          netlify/functions
+     Só clique em "Deploy".
+  6. Em 1–2 minutos o site estará em algo como
+     https://nome-aleatorio.netlify.app
+
+OPÇÃO B — Linha de comando (precisa de Node.js instalado)
+  npm install
+  npx netlify-cli login
+  npx netlify-cli deploy --build --prod
+
+Domínio próprio (ex.: elixirdaterra.com.br)
+  1. Netlify › Domain management › Add a domain.
+  2. Siga as instruções para apontar o DNS (no Registro.br ou onde
+     comprou o domínio). O HTTPS (cadeado) é ativado automaticamente.
+  3. Depois cadastre a variável SITE_URL com o endereço final
+     (veja a seção 4).
+
+Variáveis de ambiente (senhas e chaves)
+  Netlify › Site configuration › Environment variables › Add a variable.
+  Depois de criar ou mudar variáveis, faça um novo deploy:
+  Deploys › Trigger deploy › Deploy site.
+
+  Variável            Obrigatória?  O que é
+  ------------------  ------------  -------------------------------------------
+  MP_PUBLIC_KEY       sim           Public Key do Mercado Pago
+  MP_ACCESS_TOKEN     sim           Access Token do Mercado Pago (SECRETO)
+  MP_WEBHOOK_SECRET   recomendada   Assinatura secreta dos webhooks
+  ADMIN_PASSWORD      sim           Senha do /painel/ (mín. 8 caracteres)
+  SITE_URL            recomendada   https://seudominio.com.br (sem barra no fim)
+  RESEND_API_KEY      opcional      Chave do Resend (e-mails automáticos)
+  ORDER_EMAIL_TO      opcional      Seu e-mail para receber os pedidos
+  ORDER_EMAIL_FROM    opcional      Remetente, ex.: Elixir <pedidos@seudominio.com.br>
+  PIX_DISCOUNT_PERCENT opcional     Desconto do Pix (padrão 5)
+  MAX_INSTALLMENTS    opcional      Máximo de parcelas (padrão 12)
+  STATEMENT_DESCRIPTOR opcional     Nome na fatura do cartão (até 13 letras)
+  COUPONS             opcional      Cupons em JSON (veja a seção 12)
+
+Sem as chaves do Mercado Pago, o checkout funciona em MODO DEMONSTRAÇÃO
+(aparece uma faixa amarela no topo e nada é cobrado). Isso permite
+publicar e revisar o site antes de ligar os pagamentos.
+
+
+---------------------------------------------------------------------
+4. LIGAR O MERCADO PAGO (GATEWAY)
+---------------------------------------------------------------------
+4.1 Conta e aplicação
+  1. Tenha uma conta Mercado Pago de vendedor (de preferência PJ, no CNPJ
+     63.742.867/0001-32).
+  2. Acesse https://www.mercadopago.com.br/developers/panel/app
+  3. "Criar aplicação". Quando perguntar o tipo de integração, escolha
+     pagamentos online com Checkout Transparente (API de Pagamentos).
+  4. Abra a aplicação › "Credenciais de teste". Copie:
+       Public Key   → variável MP_PUBLIC_KEY
+       Access Token → variável MP_ACCESS_TOKEN
+     NUNCA publique o Access Token em lugar nenhum além das variáveis
+     da Netlify.
+
+4.2 Chave Pix (obrigatório para o Pix funcionar)
+  No app ou site do Mercado Pago, cadastre uma chave Pix na sua conta
+  (Seu perfil › Pix › Minhas chaves, ou caminho parecido). Sem chave Pix,
+  o Mercado Pago não gera o QR Code.
+
+4.3 Webhook (avisa a loja quando um Pix ou boleto é pago)
+  1. No painel da aplicação › "Webhooks" › "Configurar notificações".
+  2. URL de produção:  https://SEU-SITE/api/webhook
+     (ex.: https://www.elixirdaterra.com.br/api/webhook)
+  3. Marque o evento "Pagamentos".
+  4. Salve e copie a "Assinatura secreta" → variável MP_WEBHOOK_SECRET.
+  5. Faça um novo deploy na Netlify.
+  Obs.: a tela do Pix também consulta o pagamento a cada 5 segundos, então
+  a confirmação aparece para o cliente mesmo que o webhook atrase.
+
+4.4 Parcelamento sem juros
+  O checkout mostra "até 12x, 3x sem juros". Quem define de fato quem paga
+  os juros é o Mercado Pago: no painel da sua conta, procure a área de
+  custos/parcelamento e ative o "parcelamento sem juros" até 3x (você
+  assume a taxa). Se mudar ali, ajuste o texto em shared/catalog.js
+  (installments.noInterest) para ficar igual.
+
+4.5 Como cada forma de pagamento funciona
+  Pix     → QR Code + copia e cola na própria página, válido por 30 min.
+            5% de desconto automático. Aprovação na hora.
+  Cartão  → campos seguros do Mercado Pago (o número do cartão nunca passa
+            pela sua loja). Parcelas calculadas pelo Mercado Pago.
+            Mensagens claras quando o banco recusa ("limite insuficiente",
+            "ligue para o banco" etc.).
+  Boleto  → gerado na hora, vencimento em 3 dias, botão para abrir/imprimir.
+            Compensa em 1–2 dias úteis (o webhook avisa a loja).
+
+
+---------------------------------------------------------------------
+5. TESTAR PAGAMENTOS (MODO TESTE)
+---------------------------------------------------------------------
+Com as credenciais de TESTE configuradas:
+  - Cartão: use os cartões de teste da documentação do Mercado Pago
+    (busque "cartões de teste" em https://www.mercadopago.com.br/developers).
+    No campo "Nome impresso no cartão" escreva:
+        APRO  → pagamento aprovado
+        OTHE  → recusado
+        CONT  → em análise
+  - Pix e boleto: são gerados normalmente em modo teste. Para simular o
+    pagamento, use os recursos de teste do painel do Mercado Pago (contas
+    de teste / simulação), conforme a documentação.
+  - Depois de cada teste, confira o pedido em https://SEU-SITE/painel/
+
+O que testar antes de vender:
+  [ ] Comprar com Pix, cartão aprovado, cartão recusado e boleto.
+  [ ] Ver o pedido aparecer no /painel/.
+  [ ] Lançar um código de rastreio no painel e ver em /rastreio/.
+  [ ] Receber os e-mails (se configurou o Resend).
+
+
+---------------------------------------------------------------------
+6. IR PARA PRODUÇÃO (VENDER DE VERDADE)
+---------------------------------------------------------------------
+  1. No painel do Mercado Pago, ative as credenciais de produção da
+     aplicação (ele pede dados do negócio e do site).
+  2. Troque MP_PUBLIC_KEY e MP_ACCESS_TOKEN pelas de PRODUÇÃO
+     (começam com APP_USR-).
+  3. Confira o webhook de produção (seção 4.3).
+  4. Novo deploy. Faça uma compra real de baixo valor no Pix para validar
+     (dá para estornar depois pelo Mercado Pago).
+
+
+---------------------------------------------------------------------
+7. PAINEL DE PEDIDOS E RASTREIO
+---------------------------------------------------------------------
+Acesse https://SEU-SITE/painel/ com a senha ADMIN_PASSWORD.
+
+Rotina diária:
+  1. Filtro "Para enviar" mostra os pedidos pagos que faltam postar.
+  2. Clique no pedido: aparecem nome, CPF, WhatsApp e endereço completo.
+  3. Poste nos Correios (ou outra transportadora).
+  4. No pedido, escolha Status "Enviado", cole o código de rastreio e
+     salve. Com o e-mail ativo, o cliente recebe o código na hora.
+  5. Quando entregar, marque "Entregue".
+  Botão "Exportar CSV": baixa todos os pedidos para Excel/Planilhas
+  (útil para emitir notas e etiquetas).
+
+Para o cliente (página /rastreio/):
+  Ele informa o número do pedido (EDT-...) e o e-mail da compra e vê a
+  linha do tempo (recebido › pago › em preparação › enviado › entregue)
+  e o código de rastreio, com atalhos para os Correios e o 17TRACK.
+  Por segurança, a página não mostra CPF, telefone nem endereço completo.
+
+Sobre rastreio automático dos Correios: a API oficial dos Correios exige
+contrato. Se no futuro você usar o Melhor Envio ou tiver contrato com os
+Correios, dá para automatizar a atualização. Por enquanto o código vai
+manualmente no painel (leva 10 segundos por pedido).
+
+Onde os pedidos ficam guardados: no Netlify Blobs, dentro da sua conta
+Netlify. Eles também ficam registrados no Mercado Pago (Atividades),
+com o número EDT-... no campo "referência externa".
+
+
+---------------------------------------------------------------------
+8. E-MAILS AUTOMÁTICOS (OPCIONAL, RECOMENDADO)
+---------------------------------------------------------------------
+Com o Resend configurado, a loja envia:
+  - para VOCÊ: "Novo pedido pago" com tudo que é preciso para enviar;
+  - para o CLIENTE: "Pagamento confirmado" e depois "Pedido enviado" com
+    o código de rastreio.
+
+Como ativar:
+  1. Crie uma conta grátis em https://resend.com
+  2. Em "Domains", adicione o seu domínio e siga as instruções de DNS
+     (é o que permite enviar como pedidos@seudominio.com.br).
+  3. Em "API Keys", crie uma chave → RESEND_API_KEY.
+  4. Preencha ORDER_EMAIL_TO (seu e-mail) e ORDER_EMAIL_FROM.
+  5. Novo deploy.
+Sem o Resend, nada quebra: os pedidos aparecem no painel e no
+Mercado Pago, só não há e-mails automáticos.
+
+
+---------------------------------------------------------------------
+9. NEWSLETTER E FORMULÁRIO DE CONTATO
+---------------------------------------------------------------------
+Os dois usam o Netlify Forms (grátis, sem configurar servidor).
+  1. Netlify › Forms › habilite a detecção de formulários
+     ("Enable form detection") e faça um novo deploy.
+  2. Os envios aparecem em Netlify › Forms (newsletter e contato).
+  3. Para receber por e-mail: Forms › Form notifications › Add notification.
+
+
+---------------------------------------------------------------------
+10. BLOG E SEO (APARECER NO GOOGLE)
+---------------------------------------------------------------------
+Já está pronto no site:
+  - Títulos e descrições únicos em todas as páginas.
+  - Dados estruturados (schema.org): Produto com preço, frete grátis e
+    política de devolução; Artigos; Perguntas frequentes; Breadcrumbs;
+    Organização. Isso ajuda o Google a mostrar preço, frete grátis e
+    outras informações direto nos resultados.
+  - sitemap.xml e robots.txt automáticos.
+  - Páginas leves e rápidas, que contam pontos no Google.
+  - 6 artigos com fontes confiáveis, pensados para buscas reais:
+    "cúrcuma ou açafrão", "como usar extrato de cúrcuma",
+    "cúrcuma e pimenta-preta", "cúrcuma contraindicações",
+    "o que é agrofloresta", "o que a ciência diz sobre a cúrcuma".
+
+Faça logo depois de publicar:
+  1. Google Search Console (https://search.google.com/search-console):
+     adicione o domínio e envie https://SEU-SITE/sitemap.xml
+  2. Google Perfil da Empresa, se tiver endereço/atendimento local.
+  3. Coloque o link do site na bio do Instagram.
+
+Para escrever um artigo novo:
+  1. Copie um arquivo de src/blog/posts/ e renomeie. O nome do arquivo
+     vira o endereço (ex.: cha-de-curcuma.md → /blog/cha-de-curcuma/).
+     Use letras minúsculas, sem acento, com hífens.
+  2. Edite o cabeçalho entre as linhas ---:
+       title:       título (até ~60 caracteres)
+       description: resumo (até ~155 caracteres)
+       date:        AAAA-MM-DD
+       category:    Guia, Ciência, Saúde, Agrofloresta...
+       image:       /assets/img/arquivo.webp
+       imageAlt:    descrição da imagem
+  3. Escreva em Markdown (## para subtítulos, **negrito**, [link](url)).
+  4. Publique (envie ao GitHub). O artigo entra no blog, na home e no
+     sitemap sozinho.
+  Dica: 2 artigos bons por mês valem mais que 10 rasos. Responda dúvidas
+  reais dos clientes, cite fontes e linke para a página do produto.
+
+
+---------------------------------------------------------------------
+11. GOOGLE ANALYTICS E META PIXEL (OPCIONAL)
+---------------------------------------------------------------------
+Em src/_data/site.js › analytics, preencha:
+  ga4:       "G-XXXXXXX"
+  metaPixel: "123456789012345"
+Eles só carregam depois que o visitante clica em "Aceitar" no aviso de
+cookies (LGPD). Os eventos de e-commerce já são enviados: ver produto,
+adicionar à sacola, iniciar checkout, informar pagamento e compra.
+
+
+---------------------------------------------------------------------
+12. ALTERAR PREÇOS, KITS E CUPONS
+---------------------------------------------------------------------
+Tudo em shared/catalog.js:
+  variants[].price      preço do kit
+  variants[].compareAt  preço "de" (riscado); null para não mostrar
+  settings.pixDiscountPercent, installments, shippingEta
+Esse arquivo é a ÚNICA fonte de preço: o servidor recalcula tudo a partir
+dele, então ninguém consegue pagar menos alterando a página.
+
+Cupons: edite defaultCoupons em shared/catalog.js ou crie a variável
+COUPONS na Netlify, por exemplo:
+  {"BEMVINDO10":{"type":"percent","value":10},
+   "FRETE20":{"type":"fixed","value":20,"minSubtotal":100},
+   "BLACK":{"type":"percent","value":15,"expiresAt":"2026-11-30T23:59:59-03:00"}}
+  type:  "percent" (porcentagem) ou "fixed" (valor em reais)
+  minSubtotal (opcional): pedido mínimo
+  expiresAt (opcional): data de validade
+
+
+---------------------------------------------------------------------
+13. TESTAR NO SEU COMPUTADOR (OPCIONAL)
+---------------------------------------------------------------------
+Precisa do Node.js 20 ou mais novo (nodejs.org).
+  npm install
+  npm run build
+  node scripts/dev.mjs          → abre em http://localhost:8888
+Para testar com o Mercado Pago, crie um arquivo .env (copie de
+.env.example) com as credenciais de TESTE. Localmente os pedidos ficam
+na pasta .data/. Alternativa oficial: npx netlify-cli dev
+
+
+---------------------------------------------------------------------
+14. PONTOS DE ATENÇÃO LEGAIS E DE CONTEÚDO  ← LEIA
+---------------------------------------------------------------------
+Encontrei estes pontos ao comparar o site antigo com a sua embalagem.
+Não sou advogado; confirme com um profissional.
+
+a) PIMENTA-PRETA: o site antigo dizia que o elixir "é formulado com" a
+   sinergia da pimenta-preta, mas a composição na caixa é apenas
+   "tintura de cúrcuma em solução hidroalcoólica". O site novo NÃO diz
+   que tem pimenta-preta e explica isso na FAQ e no blog. Se a fórmula
+   mudar, atualize as duas.
+
+b) "ORGÂNICO" x "AGROECOLÓGICO": a caixa diz "Produto agroecológico".
+   No Brasil, para vender usando a palavra "orgânico" é preciso estar
+   regularizado no sistema brasileiro de orgânicos (Lei 10.831/2003:
+   certificação/selo SisOrg, ou Organização de Controle Social para
+   venda direta). Por isso o site novo usa "agroecológico". Se você tiver
+   certificação, pode voltar a usar "orgânico" e mostrar o selo.
+
+c) ALEGAÇÕES DE SAÚDE: frases como "o anti-inflamatório natural mais
+   poderoso da terra" (na caixa), "reduz o colesterol" e "sem os efeitos
+   colaterais de medicamentos" (site antigo) são alegações terapêuticas
+   que a Anvisa e o Procon costumam questionar em produtos dispensados
+   de registro. O site novo fala de tradição, uso e pesquisa, com fontes,
+   sem prometer cura. Vale revisar a frase da caixa na próxima tiragem.
+
+d) DEPOIMENTOS: mantive os três do site antigo exatamente como estavam.
+   Use apenas depoimentos reais e autorizados. O do João fala de "dores
+   articulares", o que também é alegação terapêutica.
+
+e) CONTÉM ÁLCOOL: por ser tintura hidroalcoólica, o site avisa e orienta
+   gestantes, lactantes, crianças e quem usa medicamentos a consultar um
+   profissional.
+
+f) NOTA FISCAL: o Mercado Pago não emite nota fiscal. Converse com seu
+   contador sobre emissão de NF-e (ferramentas como Bling, Tiny ou eNotas
+   integram com pedidos; o CSV do painel ajuda).
+
+g) RENDIMENTO: o site antigo falava em "ciclo de 15 dias" por frasco.
+   Com a dosagem da caixa (10–15 gotas, 2x ao dia ≈ 1 a 1,5 ml/dia), um
+   frasco de 30 ml rende cerca de 20 a 30 dias. O site novo usa esse
+   cálculo.
+
+
+---------------------------------------------------------------------
+15. COMO FUNCIONA A SEGURANÇA DO PAGAMENTO
+---------------------------------------------------------------------
+  - Dados do cartão: digitados em campos seguros do Mercado Pago e
+    transformados em um "token". Sua loja nunca vê nem guarda o número.
+  - Preço: recalculado no servidor. Se a página mostrar um valor diferente
+    do real, o pagamento é bloqueado e o cliente é avisado.
+  - Cobrança duplicada: cada tentativa leva uma chave de idempotência,
+    então duplo clique ou reenvio não cobram duas vezes.
+  - Antifraude: o checkout envia o "device ID" do Mercado Pago, o que
+    melhora a taxa de aprovação de cartões.
+  - Webhook: só aceita notificações com assinatura válida do Mercado Pago.
+  - Painel: protegido por senha; a página de rastreio exige número do
+    pedido + e-mail e não mostra dados sensíveis.
+  - Cabeçalhos de segurança (HTTPS forçado etc.) no netlify.toml.
+
+
+---------------------------------------------------------------------
+16. PROBLEMAS COMUNS
+---------------------------------------------------------------------
+"Checkout em modo demonstração" no site publicado
+  → Faltam MP_PUBLIC_KEY / MP_ACCESS_TOKEN ou não houve novo deploy.
+
+Pix não gera ("A loja ainda não tem uma chave Pix cadastrada...")
+  → Cadastre uma chave Pix na conta do Mercado Pago (seção 4.2).
+
+Pedido pago no Pix/boleto, mas o painel continua "Aguardando"
+  → Confira o webhook (URL https://SEU-SITE/api/webhook, evento
+    "Pagamentos") e a variável MP_WEBHOOK_SECRET. Veja os registros em
+    Netlify › Logs › Functions › webhook.
+
+"Senha incorreta" ou painel pedindo ADMIN_PASSWORD
+  → Crie a variável ADMIN_PASSWORD (mínimo 8 caracteres) e faça novo
+    deploy.
+
+Cartão não aparece / "Não foi possível carregar o pagamento com cartão"
+  → Bloqueador de anúncios ou rede bloqueando sdk.mercadopago.com.
+    Peça ao cliente para tentar outro navegador ou pagar com Pix.
+
+Formulários (newsletter/contato) não chegam
+  → Habilite "form detection" em Netlify › Forms e faça novo deploy.
+
+Onde vejo erros?
+  → Netlify › Logs › Functions. Cada pagamento registra uma linha
+    "[pedido] EDT-... pix 256.5 → pending".
+
+Documentação oficial
+  Mercado Pago (desenvolvedores): https://www.mercadopago.com.br/developers
+  Netlify Functions: https://docs.netlify.com/build/functions/overview
+=====================================================================
+
+==========================================================================
+FRETE — CÁLCULO PELO CEP (MELHOR ENVIO)
+==========================================================================
+O site calcula o frete pelo CEP (página do produto e checkout) e o servidor
+recalcula o valor antes de cobrar.
+
+1) SEM CONFIGURAR NADA: usa uma tabela de reserva por região (PAC e SEDEX,
+   saindo de Alfredo Wagner/SC). Os valores ficam em shared/catalog.js >
+   settings.shipping.table — ajuste se quiser.
+
+2) EM TEMPO REAL (recomendado — é o que as grandes lojas usam):
+   a) Crie uma conta grátis em https://melhorenvio.com.br com os dados da empresa.
+   b) No painel: Gerenciar > Tokens > Novo token (marque as permissões de
+      cotação "shipping-calculate").
+   c) Na Netlify (Project configuration > Environment variables) crie:
+        MELHOR_ENVIO_TOKEN   = o token gerado
+      Opcionais:
+        SHIPPING_ORIGIN_CEP  = CEP de onde sai o pacote (padrão 88450000)
+        MELHOR_ENVIO_SERVICES = ids dos serviços (ex.: "1,2" = PAC e SEDEX)
+   d) Faça um novo deploy. Se o Melhor Envio falhar, o site volta sozinho
+      para a tabela de reserva, sem travar a venda.
+
+Desconto no Pix: desativado (shared/catalog.js > settings.pixDiscountPercent = 0).
+
+Frete grátis acima de um valor (opcional): crie na Netlify a variável
+  FREE_SHIPPING_ABOVE = 250   (exemplo: deixa grátis o Kit Família e o Kit Coletivo)
+ou altere settings.shipping.freeAbove em shared/catalog.js. Sem a variável, fica desligado.
+Mini Envios (frasco individual, até 300 g e R$ 100) aparece automaticamente quando houver
+token do Melhor Envio ou pela tabela de reserva.
+
+==========================================================================
+VENDAS: CUPOM DE PRIMEIRA COMPRA, CARRINHOS ABANDONADOS E RECOMPRA
+==========================================================================
+- Janela "10% na primeira compra": aparece uma vez a cada 14 dias (ao tentar sair da
+  página no computador, ou depois de alguns segundos/rolagem no celular). Os contatos
+  ficam na Netlify em Forms > "primeira-compra". O cupom BEMVINDO10 é aplicado sozinho
+  no checkout.
+- Painel (/painel/) > "Carrinhos abandonados": quem preencheu os dados no checkout e não
+  pagou há mais de 30 min. Botão de WhatsApp com mensagem pronta (com o cupom).
+- Painel > "Lembrar recompra": clientes que compraram há 18 a 40 dias. Botão de WhatsApp
+  com mensagem pronta; depois de enviar, o cliente sai da lista.
+
+==========================================================================
+SEGURANÇA (o que o site já faz)
+==========================================================================
+- Chaves e senhas ficam só nas variáveis de ambiente da Netlify (nunca no código
+  nem no navegador). A Public Key do Mercado Pago é pública por natureza.
+- Preço, cupom e frete são sempre recalculados no servidor.
+- Painel: login gera um token assinado que expira em 8 h (a senha não fica salva
+  no navegador). 5 senhas erradas em 15 min bloqueiam o IP por 15 min. CPF aparece
+  mascarado (botão "mostrar").
+- APIs: só aceitam chamadas do próprio site (bloqueio de origem/CORS) e têm limite
+  de requisições por IP. Para liberar outro domínio, crie ALLOWED_ORIGINS na Netlify.
+- Webhook: só aceita notificações com a assinatura secreta do Mercado Pago válida.
+  Use a URL com www: https://www.elixirdaterra.com.br/api/webhook
+- Cabeçalhos: HTTPS obrigatório (HSTS), Content-Security-Policy gerada a cada build,
+  proteção contra iframe de outros sites, noindex em /checkout/, /painel/ e /api/.
+- Erros mostram mensagens genéricas ao cliente; detalhes ficam só nos logs da
+  Netlify (Logs > Functions), incluindo tentativas bloqueadas ("[seguranca]").
+
+==========================================================================
+CONTA DO CLIENTE (Minha conta)
+==========================================================================
+- Página /conta/: cadastro e login com e-mail e senha, "Meus pedidos" (status,
+  rastreio, comprar de novo), "Meus dados", "Endereço" e troca de senha.
+- Senhas guardadas com scrypt (criptografia forte). Sessão por cookie seguro
+  (HttpOnly, 30 dias). Trocar a senha desconecta os outros aparelhos.
+- 6 senhas erradas seguidas bloqueiam aquele e-mail por 15 minutos.
+- Pedidos aparecem na conta quando: a compra foi feita logado, o cliente vincula
+  um pedido antigo (número + e-mail) ou confirma o e-mail por código.
+- Recomendado: crie na Netlify a variável SESSION_SECRET com um texto longo e
+  aleatório (ex.: 40 letras e números). Sem ela, o site usa uma chave derivada dos
+  outros segredos.
+- Para o "Esqueci a senha" e a confirmação por e-mail funcionarem sozinhos, é
+  preciso ativar os e-mails (RESEND_API_KEY). Enquanto isso, o link "Esqueceu a
+  senha?" leva ao WhatsApp, e você redefine pedindo ao cliente para criar a conta
+  de novo após apagar a antiga (fale comigo para fazer isso).
+
+
+SENHA ESQUECIDA (SOLUÇÃO PROVISÓRIA, SEM E-MAIL)
+-----------------------------------------------
+Enquanto o envio de e-mails (Resend) não estiver configurado:
+1. O cliente toca em "Fale com a gente" na tela de login. O WhatsApp já abre com o e-mail que ele digitou.
+2. No /painel/, em "Cliente esqueceu a senha", digite o e-mail e clique em "Gerar link".
+3. Clique em "Enviar no WhatsApp" (ou "Copiar mensagem"). O link vale 2 horas e só funciona uma vez.
+4. O cliente abre o link, cria a nova senha e entra direto na conta.
+Os avisos de pedido continuam no próprio site: tela de pedido confirmado, página /rastreio/ e área "Minha conta".
+
+
+AVISO DE VENDA NO SEU WHATSAPP (GRÁTIS, CALLMEBOT)
+--------------------------------------------------
+A cada venda paga chega uma mensagem no WhatsApp (48) 99614-2907 com o valor, os itens, a cidade e o link do painel.
+Por privacidade, a mensagem leva só o primeiro nome do cliente; os dados completos ficam no painel.
+1. No celular com esse WhatsApp, salve o contato +34 644 56 55 18 (nome à sua escolha).
+2. Envie para ele a mensagem:  I allow callmebot to send me messages
+3. Em até 2 minutos ele responde com "Your APIKEY is ......". Copie esse número.
+4. Netlify > Site configuration > Environment variables > Add variable:
+   WHATSAPP_ALERT_APIKEY = (o número que o bot mandou)
+   (Opcional) WHATSAPP_ALERT_PHONE = outro número, só dígitos com 55, se quiser receber em outro WhatsApp.
+5. Faça um novo deploy. Pronto: o aviso sai uma única vez por pedido, quando o pagamento é aprovado.
+Observação: o CallMeBot é um serviço gratuito em versão beta; o aviso pode atrasar até 1 minuto. O painel continua sendo a fonte oficial.
+
+AVISO DE VENDA NO CELULAR (ntfy — gratuito, sem cadastro) — RECOMENDADO
+---------------------------------------------------------------------
+1. Instale o app "ntfy" (Play Store ou App Store).
+2. No app, toque em "+" (Subscribe to topic) e digite o tópico: elixir-vendas-9k559d81pcc5
+3. Netlify > Site configuration > Environment variables > Add variable:
+   NTFY_TOPIC = elixir-vendas-9k559d81pcc5
+4. Novo deploy. A cada venda paga chega uma notificação com valor, itens e cidade; tocar nela abre o painel.
+Não divulgue o nome do tópico (quem souber o nome consegue ler os avisos).
+
+CUPOM DE PRIMEIRA COMPRA (BEMVINDO10)
+------------------------------------
+O BEMVINDO10 só vale para quem nunca teve uma compra paga. Na hora de pagar, o servidor confere se o CPF,
+o e-mail (sem diferenciar maiúsculas, "+apelido" e pontos do Gmail) ou o celular já aparecem em algum pedido pago.
+Se aparecer, o cupom é removido e a pessoa vê o novo total antes de pagar.
+Para criar outros cupons, use a variável COUPONS na Netlify, por exemplo:
+{"BEMVINDO10":{"type":"percent","value":10,"firstPurchaseOnly":true},"VOLTA15":{"type":"percent","value":15}}

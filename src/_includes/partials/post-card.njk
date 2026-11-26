@@ -1,0 +1,6 @@
+<a class="post-card reveal" href="{{ post.url }}">
+  <div class="post-card__img"><img src="{{ post.data.image }}" alt="{{ post.data.imageAlt }}" loading="lazy" width="640" height="400"></div>
+  <div class="post-card__meta"><span>{{ post.data.category }}</span><span>·</span><span>{{ post.templateContent | readingTime }} min de leitura</span></div>
+  <h3>{{ post.data.title }}</h3>
+  <p>{{ post.data.description }}</p>
+</a>

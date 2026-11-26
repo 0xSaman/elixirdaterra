@@ -1,0 +1,16 @@
+{
+  "name": "elixir-da-terra",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Loja Elixir da Terra — Eleventy + Netlify Functions + Mercado Pago",
+  "scripts": {
+    "build": "eleventy",
+    "dev": "eleventy --serve --port=8080"
+  },
+  "engines": { "node": ">=20" },
+  "dependencies": {
+    "@11ty/eleventy": "3.1.2",
+    "@netlify/blobs": "10.0.11"
+  }
+}

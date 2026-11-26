@@ -1,0 +1,134 @@
+{%- from "partials/icons.njk" import icon -%}
+{%- set autoTitle = (title + " | " + site.name) if title else site.name -%}
+{%- set pageTitle = seoTitle or (autoTitle if autoTitle | length <= 62 else title) -%}
+{%- set pageDesc = description or site.description -%}
+{%- set canonical = (page.url | absUrl(site.url)) -%}
+{%- set ogImg = ((ogImage or "/assets/img/og-image.jpg") | absUrl(site.url)) -%}
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>{{ pageTitle }}</title>
+<meta name="description" content="{{ pageDesc }}">
+<link rel="canonical" href="{{ canonical }}">
+{%- if noindex %}<meta name="robots" content="noindex,nofollow">{% else %}<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">{% endif %}
+<meta name="author" content="{{ site.name }}">
+<meta name="geo.region" content="BR-SC">
+<meta name="geo.placename" content="Alfredo Wagner">
+<meta name="theme-color" content="#ffffff">
+<meta property="og:site_name" content="{{ site.name }}">
+<meta name="application-name" content="{{ site.name }}">
+<meta name="apple-mobile-web-app-title" content="{{ site.name }}">
+<meta property="og:locale" content="pt_BR">
+<meta property="og:type" content="{{ ogType or 'website' }}">
+<meta property="og:title" content="{{ pageTitle }}">
+<meta property="og:description" content="{{ pageDesc }}">
+<meta property="og:url" content="{{ canonical }}">
+<meta property="og:image" content="{{ ogImg }}">
+<meta property="og:image:alt" content="{{ site.name }}">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{{ pageTitle }}">
+<meta name="twitter:description" content="{{ pageDesc }}">
+<meta name="twitter:image" content="{{ ogImg }}">
+<link rel="alternate" type="text/plain" title="Resumo para IAs" href="/llms.txt">
+<link rel="icon" href="/favicon.ico?v=2" sizes="any">
+<link rel="icon" type="image/png" href="/assets/img/favicon-48.png?v=2" sizes="48x48">
+<link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png?v=2">
+<link rel="manifest" href="/site.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ '/assets/css/main.css' | v }}">
+{%- for css in styles %}<link rel="stylesheet" href="{{ css | v }}">{% endfor %}
+{%- for img in preload %}{%- if img == "/assets/img/hero-produto.webp" %}<link rel="preload" as="image" href="{{ img }}" imagesrcset="/assets/img/hero-produto-m.webp 480w, /assets/img/hero-produto.webp 948w" imagesizes="(max-width:600px) 150px, (max-width:860px) 300px, 480px" fetchpriority="high">{%- else %}<link rel="preload" as="image" href="{{ img }}">{%- endif %}{% endfor %}
+<script type="application/ld+json">
+{"@context":"https://schema.org","@graph":[
+{"@type":"Organization","@id":"{{ site.url }}/#org","name":"{{ site.name }}","url":"{{ site.url }}/","logo":"{{ site.url }}/assets/img/logo-vinho.png","taxID":"{{ site.legal.cnpj }}","address":{"@type":"PostalAddress","streetAddress":"Estrada Geral Alto Rio Lessa, S/N","addressLocality":"Alfredo Wagner","addressRegion":"SC","postalCode":"88450-000","addressCountry":"BR"},"contactPoint":{"@type":"ContactPoint","telephone":"+{{ site.whatsapp }}","contactType":"customer service","areaServed":"BR","availableLanguage":"Portuguese"},"email":"{{ site.email }}","description":"Extrato de cúrcuma agroecológico produzido artesanalmente em Alfredo Wagner, Santa Catarina.","areaServed":"BR","brand":{"@type":"Brand","name":"{{ site.name }}"},"sameAs":["{{ site.instagram }}","https://wa.me/{{ site.whatsapp }}"]},
+{"@type":"WebSite","@id":"{{ site.url }}/#site","name":"{{ site.name }}","alternateName":["Elixir da Terra Cúrcuma","elixirdaterra.com.br"],"url":"{{ site.url }}/","inLanguage":"pt-BR","publisher":{"@id":"{{ site.url }}/#org"}}
+{%- set isPost = page.url.startsWith("/blog/") and page.url != "/blog/" -%}
+{%- if page.url != "/" and not isPost and page.url != "/extrato-de-curcuma/" and not noindex %},
+{"@type":"{{ schemaType or 'WebPage' }}","@id":"{{ canonical }}#page","url":"{{ canonical }}","name":{{ (title or site.name) | json | safe }},"description":{{ pageDesc | json | safe }},"inLanguage":"pt-BR","isPartOf":{"@id":"{{ site.url }}/#site"}},
+{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Início","item":"{{ site.url }}/"},{"@type":"ListItem","position":2,"name":{{ (title or site.name) | json | safe }},"item":"{{ canonical }}"}]}
+{%- endif %}
+]}
+</script>
+{%- if jsonld %}
+<script type="application/ld+json">{{ jsonld | safe }}</script>
+{%- endif %}
+<script>document.documentElement.classList.add('js')</script>
+</head>
+<body class="{{ bodyClass }}">
+{%- if page.url == "/" %}
+<div class="splash" id="splash" aria-hidden="true">
+  <div class="splash__inner"><img src="/assets/img/logo-vinho.webp" alt="" width="260"><span class="splash__line"></span></div>
+</div>
+<script>try{if(innerWidth<900||sessionStorage.getItem("edt_splash"))document.getElementById("splash").remove();else{sessionStorage.setItem("edt_splash","1");document.documentElement.classList.add("splashing")}}catch(e){var s=document.getElementById("splash");s&&s.remove()}</script>
+{%- endif %}
+<a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+
+
+{% include "partials/header.njk" %}
+
+<main id="conteudo">
+{{ content | safe }}
+</main>
+
+{%- if not minimalChrome %}
+{% include "partials/footer.njk" %}
+<a class="wa-float" href="https://wa.me/{{ site.whatsapp }}?text={{ 'Olá! Vim pelo site da Elixir da Terra.' | urlencode }}" target="_blank" rel="noopener" aria-label="Falar no WhatsApp">{{ icon("whatsapp", 28) }}</a>
+{%- endif %}
+
+{% include "partials/cart.njk" %}
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+{%- if not minimalChrome %}
+<div class="welcome" id="welcome" hidden role="dialog" aria-modal="true" aria-labelledby="welcome-title">
+  <div class="welcome__backdrop" data-welcome-close></div>
+  <div class="welcome__panel">
+    <button class="welcome__close" type="button" data-welcome-close aria-label="Fechar">{{ icon("close", 20) }}</button>
+    <div class="welcome__media"><img src="/assets/img/hero-produto.webp" alt="" width="948" height="1169" loading="lazy"></div>
+    <div class="welcome__body">
+      <div id="welcome-step1">
+        <span class="eyebrow">Primeira compra</span>
+        <h2 id="welcome-title" class="welcome__title">Ganhe <em>10% off</em> no seu primeiro Elixir</h2>
+        <p class="welcome__text">Deixe seu e-mail ou WhatsApp e receba o cupom agora.</p>
+        <form name="primeira-compra" method="POST" data-netlify="true" netlify-honeypot="empresa" id="welcome-form" novalidate>
+          <input type="hidden" name="form-name" value="primeira-compra">
+          <p hidden><label>Empresa <input name="empresa" tabindex="-1" autocomplete="off"></label></p>
+          <input type="text" name="contato" id="welcome-contact" placeholder="Seu e-mail ou WhatsApp" autocomplete="email" maxlength="160" required aria-label="Seu e-mail ou WhatsApp">
+          <button class="btn btn--primary btn--block" type="submit">Quero meu cupom</button>
+          <p class="welcome__msg" id="welcome-msg" role="alert"></p>
+        </form>
+        <button class="welcome__skip" type="button" data-welcome-close>Agora não</button>
+      </div>
+      <div id="welcome-step2" hidden>
+        <span class="eyebrow">Prontinho</span>
+        <h2 class="welcome__title">Seu cupom de <em>10% off</em></h2>
+        <button class="welcome__code" type="button" id="welcome-copy"><span>{{ catalog.welcomeCoupon or "BEMVINDO10" }}</span><small>Toque para copiar</small></button>
+        <p class="welcome__text">Ele já fica aplicado automaticamente quando você finalizar a compra.</p>
+        <a class="btn btn--primary btn--block" href="/extrato-de-curcuma/">Escolher meu kit</a>
+      </div>
+    </div>
+  </div>
+</div>
+{%- endif %}
+
+{#- Aviso de cookies só aparece quando houver Google Analytics ou Pixel configurado (site.js → analytics) -#}
+{%- if not minimalChrome and (site.analytics.ga4 or site.analytics.metaPixel) %}
+<div class="consent" id="consent" hidden role="dialog" aria-label="Cookies">
+  <p>Usamos cookies para medir visitas e melhorar sua experiência. Você pode aceitar ou recusar os cookies de análise. Saiba mais na <a class="link" href="/politicas/privacidade/">Política de Privacidade</a>.</p>
+  <div class="consent__actions">
+    <button class="btn btn--dark btn--sm" type="button" data-consent="all">Aceitar</button>
+    <button class="btn btn--outline btn--sm" type="button" data-consent="essential">Só essenciais</button>
+  </div>
+</div>
+{%- endif %}
+
+<script>window.EDT_SITE={whatsapp:"{{ site.whatsapp }}",ga4:"{{ site.analytics.ga4 }}",metaPixel:"{{ site.analytics.metaPixel }}"};</script>
+<script src="{{ '/assets/js/catalog.js' | v }}"></script>
+<script src="{{ '/assets/js/app.js' | v }}" defer></script>
+{%- for s in scripts %}
+<script src="{{ s | v }}" defer></script>
+{%- endfor %}
+</body>
+</html>

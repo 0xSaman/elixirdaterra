@@ -1,0 +1,46 @@
+---
+layout: layouts/base.njk
+permalink: /contato/
+title: Contato
+description: "Fale com o Elixir da Terra pelo WhatsApp, e-mail ou formulário. Tire dúvidas sobre o extrato de cúrcuma, pedidos, entregas, trocas e pagamentos."
+seoTitle: "Contato e atendimento | Elixir da Terra"
+schemaType: ContactPage
+---
+{%- from "partials/icons.njk" import icon -%}
+<section class="page-hero">
+  <div class="wrap wrap--narrow">
+    <span class="eyebrow">Atendimento</span>
+    <h1 class="h-lg">Fale com a gente</h1>
+    <p class="lead">Respondemos em horário comercial, de segunda a sexta. Para dúvidas sobre um pedido, tenha em mãos o número dele.</p>
+  </div>
+</section>
+<section class="section section--tight">
+  <div class="wrap grid-2" style="align-items:start">
+    <div class="stack">
+      <a class="track-card" href="https://wa.me/{{ site.whatsapp }}" target="_blank" rel="noopener" style="text-decoration:none;display:flex;gap:16px;align-items:center">
+        <span style="color:#1f9e55">{{ icon("whatsapp", 32) }}</span>
+        <span><b style="display:block;font-size:17px">WhatsApp</b><span class="muted">{{ site.whatsappDisplay }} · o jeito mais rápido</span></span>
+      </a>
+      <a class="track-card" href="mailto:{{ site.email }}" style="text-decoration:none;display:flex;gap:16px;align-items:center">
+        <span class="text-wine">{{ icon("mail", 30, 1.8) }}</span>
+        <span><b style="display:block;font-size:17px">E-mail</b><span class="muted">{{ site.email }}</span></span>
+      </a>
+      <a class="track-card" href="/rastreio/" style="text-decoration:none;display:flex;gap:16px;align-items:center">
+        <span class="text-wine">{{ icon("package", 30, 1.8) }}</span>
+        <span><b style="display:block;font-size:17px">Onde está meu pedido?</b><span class="muted">Acompanhe em tempo real</span></span>
+      </a>
+    </div>
+    <div class="track-card">
+      <h2 class="h-sm" style="margin-bottom:16px">Envie uma mensagem</h2>
+      <form name="contato" method="POST" data-netlify="true" netlify-honeypot="empresa" data-netlify-ajax data-success="Mensagem enviada! Respondemos em breve.">
+        <input type="hidden" name="form-name" value="contato">
+        <p hidden><label>Não preencha: <input name="empresa"></label></p>
+        <div class="field"><label for="c-nome">Nome</label><input id="c-nome" name="nome" required autocomplete="name" maxlength="100"></div>
+        <div class="field"><label for="c-email">E-mail</label><input id="c-email" name="email" type="email" required autocomplete="email" maxlength="160"></div>
+        <div class="field"><label for="c-pedido">Número do pedido (opcional)</label><input id="c-pedido" name="pedido" placeholder="EDT-…" maxlength="24"></div>
+        <div class="field"><label for="c-msg">Mensagem</label><textarea id="c-msg" name="mensagem" required maxlength="2000"></textarea></div>
+        <button class="btn btn--primary btn--block" type="submit">Enviar mensagem</button>
+      </form>
+    </div>
+  </div>
+</section>

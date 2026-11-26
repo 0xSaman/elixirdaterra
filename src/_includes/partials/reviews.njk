@@ -1,0 +1,27 @@
+<section class="section testi">
+  <div class="wrap">
+    <div class="testi__grid">
+      <div class="testi__intro">
+        <span class="eyebrow">Depoimentos</span>
+        <h2 class="h-lg">Quem usa, recomenda</h2>
+        <p class="muted">O que dizem algumas das pessoas que já incluíram o Elixir da Terra na rotina.</p>
+      </div>
+      <div class="testi__rot carousel" data-carousel data-autoplay="5500" aria-roledescription="carrossel" aria-label="Depoimentos de clientes">
+        <div class="carousel__track">
+          {%- for q in testimonials %}
+          <figure class="testi__card" aria-roledescription="slide" aria-label="{{ loop.index }} de {{ testimonials.length }}">
+            <blockquote>“{{ q.text }}”</blockquote>
+            <figcaption>
+              <span class="testi__avatar" aria-hidden="true">{{ q.name | first }}</span>
+              <span><b>{{ q.name }}</b><small>{{ q.role }}</small></span>
+            </figcaption>
+          </figure>
+          {%- endfor %}
+        </div>
+        <div class="carousel__dots" role="tablist">
+          {%- for q in testimonials %}<button type="button" role="tab" aria-label="Depoimento {{ loop.index }}" data-dot="{{ loop.index0 }}"></button>{% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,37 @@
+{%- from "partials/icons.njk" import icon -%}
+{%- set items = collections.posts | byPriority | exclude(page.url) | limit(6) -%}
+{%- if items.length %}
+<section class="section section--tight">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <h2 class="h-lg">Do nosso blog</h2>
+        <p class="muted">Guias e estudos sobre a cúrcuma, escritos sem exagero.</p>
+      </div>
+      <div class="carousel-nav">
+        <a class="link-arrow blog-all" href="/blog/">Ver todos os {{ collections.posts | length }} artigos {{ icon("arrow", 16) }}</a>
+        <button class="icon-btn icon-btn--ring" type="button" data-carousel-prev aria-label="Artigo anterior">{{ icon("chev-left", 20) }}</button>
+        <button class="icon-btn icon-btn--ring" type="button" data-carousel-next aria-label="Próximo artigo">{{ icon("chev-right", 20) }}</button>
+      </div>
+    </div>
+    <div class="carousel" data-carousel data-autoplay="5000" aria-roledescription="carrossel" aria-label="Artigos do blog">
+      <div class="carousel__track">
+        {%- for post in items %}
+        <a class="slide" href="{{ post.url }}" aria-roledescription="slide" aria-label="{{ loop.index }} de {{ items.length }}">
+          <div class="slide__img"><img src="{{ post.data.image }}" alt="{{ post.data.imageAlt }}" loading="lazy" width="800" height="520"></div>
+          <div class="slide__body">
+            <span class="post-card__meta"><span>{{ post.data.category }}</span><span>·</span><span>{{ post.templateContent | readingTime }} min de leitura</span></span>
+            <h3 class="h-md">{{ post.data.title }}</h3>
+            <p>{{ post.data.description }}</p>
+            <span class="link-arrow">Ler artigo {{ icon("arrow", 16) }}</span>
+          </div>
+        </a>
+        {%- endfor %}
+      </div>
+      <div class="carousel__dots" role="tablist">
+        {%- for post in items %}<button type="button" role="tab" aria-label="Ir para o artigo {{ loop.index }}" data-dot="{{ loop.index0 }}"></button>{% endfor %}
+      </div>
+    </div>
+  </div>
+</section>
+{%- endif %}

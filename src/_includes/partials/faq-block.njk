@@ -1,0 +1,27 @@
+{%- from "partials/icons.njk" import icon -%}
+{#- variáveis: faqGroup (opcional), faqLimit (opcional), faqTitle -#}
+<section class="section faq-v3">
+  <div class="wrap wrap--narrow">
+    <div class="section-head section-head--center">
+      <div>
+        <span class="eyebrow">Dúvidas</span>
+        <h2 class="h-lg">{{ faqTitle or "Perguntas frequentes" }}</h2>
+      </div>
+    </div>
+    <div class="faq-v3__list">
+      {%- for item in faq | faqFilter(faqGroup, faqLimit) %}
+      <details class="faq-v3__item">
+        <summary><span>{{ item.q }}</span><i aria-hidden="true"></i></summary>
+        <div class="faq-v3__a">{{ item.a | safe }}</div>
+      </details>
+      {%- endfor %}
+    </div>
+    <div class="faq-v3__foot">
+      <p>Não encontrou o que procurava?</p>
+      <div>
+        <a class="btn btn--wa btn--sm" href="https://wa.me/{{ site.whatsapp }}" target="_blank" rel="noopener">{{ icon("whatsapp", 16) }} Falar no WhatsApp</a>
+        <a class="link-arrow" href="/perguntas-frequentes/">Ver todas as dúvidas {{ icon("arrow", 16) }}</a>
+      </div>
+    </div>
+  </div>
+</section>

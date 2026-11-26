@@ -1,0 +1,79 @@
+{%- from "partials/icons.njk" import icon -%}
+{%- set nav = [
+  { url: "/extrato-de-curcuma/", label: "Comprar" },
+  { url: "/sobre/", label: "Sobre nós" },
+  { url: "/blog/", label: "Blog" },
+  { url: "/perguntas-frequentes/", label: "Dúvidas" },
+  { url: "/rastreio/", label: "Rastrear pedido" }
+] -%}
+<header class="site-header" id="site-header">
+  <div class="wrap header-inner">
+    {%- if minimalChrome %}
+    <a href="/" class="icon-btn menu-toggle" aria-label="Voltar para a loja">{{ icon("chev-left", 22) }}</a>
+    {%- else %}
+    <button class="icon-btn menu-toggle" type="button" aria-label="Abrir menu" aria-controls="mobile-menu" aria-expanded="false" data-menu-open>{{ icon("menu", 24) }}</button>
+    {%- endif %}
+    <a href="/" class="brand" aria-label="{{ site.name }} — página inicial"><img src="/assets/img/logo-horizontal-vinho.webp" alt="{{ site.name }}" width="257" height="96"></a>
+    {%- if minimalChrome %}
+    <div class="header-actions"><span class="badge badge--leaf">{{ icon("lock", 14, 2.4) }} Compra segura</span></div>
+    {%- else %}
+    <nav class="main-nav" aria-label="Principal">
+      {%- for item in nav %}
+      <a href="{{ item.url }}"{% if page.url == item.url or (item.url != '/' and page.url.startsWith(item.url)) %} aria-current="page"{% endif %}>{{ item.label }}</a>
+      {%- endfor %}
+    </nav>
+    <div class="header-actions">
+      <a class="acct-link" href="/conta/" aria-label="Minha conta">{{ icon("user", 21) }}<span class="acct-link__label hide-mobile" data-acct-label>Entrar</span></a>
+      <button class="cart-btn" type="button" aria-label="Abrir carrinho" data-cart-open><span class="cart-btn__ic">{{ icon("cart", 24, 1.9) }}<span class="cart-count" data-cart-count data-count="0"></span></span><span class="cart-btn__label hide-mobile">Carrinho</span></button>
+    </div>
+    {%- endif %}
+  </div>
+</header>
+
+{%- if not minimalChrome %}
+<div class="mobile-menu" id="mobile-menu" aria-hidden="true">
+  <div class="mobile-menu__backdrop" data-menu-close></div>
+  <div class="mobile-menu__panel" role="dialog" aria-modal="true" aria-label="Menu">
+    <div class="mobile-menu__head">
+      <img src="/assets/img/logo-horizontal-vinho.webp" alt="{{ site.name }}" width="257" height="96" loading="lazy">
+      <button class="icon-btn" type="button" aria-label="Fechar menu" data-menu-close>{{ icon("close", 22) }}</button>
+    </div>
+    <div class="mm-scroll">
+      <a class="mm-acct" href="/conta/">
+        <span class="mm-acct__ic">{{ icon("user", 20, 1.8) }}</span>
+        <span><b data-mm-acct>Entre ou crie sua conta</b><small data-mm-acct-sub>Pedidos e compra rápida</small></span>
+        {{ icon("chev-right", 18) }}
+      </a>
+
+      <p class="mm-label">Comprar</p>
+      <div class="mm-kits">
+        {%- for v in catalog.variants %}
+        <a class="mm-kit" href="/extrato-de-curcuma/{% if not loop.first %}?kit={{ v.id }}{% endif %}">
+          <img src="{{ v.image }}" alt="" width="56" height="56" loading="lazy">
+          <span class="mm-kit__txt"><span class="mm-kit__row"><b>{{ (v.name | replace(" — ", "|")).split("|")[0] }}</b><span class="mm-kit__price">{{ v.price | brl }}</span></span><small>{{ v.units }} frasco{% if v.units > 1 %}s{% endif %}{% if catalog.settings.shipping.freeFromUnits and v.units >= catalog.settings.shipping.freeFromUnits %} · <em>frete grátis</em>{% elif v.units > 1 %} · {{ v | perUnit }} cada{% endif %}</small></span>
+        </a>
+        {%- endfor %}
+      </div>
+
+      <p class="mm-label">Ajuda</p>
+      <nav class="mm-list" aria-label="Ajuda">
+        <a href="/rastreio/">{{ icon("package", 19, 1.7) }}<span>Rastrear pedido</span>{{ icon("chev-right", 16) }}</a>
+        <a href="/perguntas-frequentes/">{{ icon("search", 19, 1.7) }}<span>Dúvidas frequentes</span>{{ icon("chev-right", 16) }}</a>
+        <a href="/politicas/entrega/">{{ icon("truck", 19, 1.7) }}<span>Entrega e frete</span>{{ icon("chev-right", 16) }}</a>
+        <a href="/politicas/trocas-e-devolucoes/">{{ icon("return", 19, 1.7) }}<span>Trocas e devoluções</span>{{ icon("chev-right", 16) }}</a>
+      </nav>
+
+      <p class="mm-label">Conheça</p>
+      <nav class="mm-list" aria-label="Conheça">
+        <a href="/sobre/">{{ icon("leaf", 19, 1.7) }}<span>Nossa história</span>{{ icon("chev-right", 16) }}</a>
+        <a href="/blog/">{{ icon("drop", 19, 1.7) }}<span>Blog: guias e receitas</span>{{ icon("chev-right", 16) }}</a>
+        <a href="/contato/">{{ icon("mail", 19, 1.7) }}<span>Fale conosco</span>{{ icon("chev-right", 16) }}</a>
+      </nav>
+    </div>
+    <div class="mobile-menu__foot">
+      <a class="btn btn--wa btn--block" href="https://wa.me/{{ site.whatsapp }}?text={{ 'Olá! Vim pelo site e tenho uma dúvida.' | urlencode }}" target="_blank" rel="noopener">{{ icon("whatsapp", 18) }} Atendimento no WhatsApp</a>
+      <p class="mm-trust">{{ icon("lock", 13, 2.2) }} Compra segura · Pix, cartão ou boleto</p>
+    </div>
+  </div>
+</div>
+{%- endif %}

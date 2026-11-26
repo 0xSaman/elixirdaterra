@@ -1,0 +1,37 @@
+{%- from "partials/icons.njk" import icon -%}
+{%- set fu = catalog.settings.shipping.freeFromUnits -%}
+{%- set ni = catalog.settings.installments.noInterest -%}
+<section class="section section--tight">
+  <div class="wrap">
+    <div class="closing2 reveal">
+      <span class="spark s1" aria-hidden="true"></span><span class="spark s2" aria-hidden="true"></span><span class="spark s3" aria-hidden="true"></span><span class="spark s4" aria-hidden="true"></span>
+      <div class="closing2__copy">
+        <span class="eyebrow eyebrow--light">Comece seu ritual</span>
+        <h2>O ouro da terra, <em>gota a gota.</em></h2>
+        <p>Escolha a quantidade ideal para a sua rotina. Quanto mais frascos, menor o preço de cada um.</p>
+        <ul class="closing2__kits">
+          {%- for v in catalog.variants %}
+          {%- set parts = v.name.split(" — ") %}
+          <li><a href="/extrato-de-curcuma/?kit={{ v.id }}">
+            <span><b>{{ parts[0] }}</b><small>{{ parts[1] }}</small></span>
+            <strong>{{ v | perUnit }}<small>/frasco</small></strong>
+          </a></li>
+          {%- endfor %}
+        </ul>
+        <div class="closing2__cta">
+          <a class="btn btn--gold btn--lg" href="/extrato-de-curcuma/">Escolher meu kit {{ icon("arrow", 18) }}</a>
+          <a class="closing2__wa" href="https://wa.me/{{ site.whatsapp }}?text={{ 'Olá! Quero ajuda para escolher meu kit.' | urlencode }}" target="_blank" rel="noopener">{{ icon("whatsapp", 18) }} Ajuda para escolher</a>
+        </div>
+        <ul class="closing2__trust">
+          {%- if fu %}<li>{{ icon("truck", 16) }} Frete grátis a partir de {{ fu }} frascos</li>{% endif %}
+          <li>{{ icon("card", 16) }} {{ ni }}x sem juros</li>
+          <li>{{ icon("return", 16) }} 7 dias para devolver</li>
+        </ul>
+      </div>
+      <div class="closing2__media">
+        <span class="closing2__glow" aria-hidden="true"></span>
+        <img src="/assets/img/linha-completa.webp" alt="Linha Elixir da Terra: Primeira Gota, Ritual da Terra e Elixir da Família" width="1100" height="589" loading="lazy">
+      </div>
+    </div>
+  </div>
+</section>
