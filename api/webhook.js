@@ -39,6 +39,8 @@ async function handler(req) {
     if (changed || order.emails?.paid) await saveOrder(order);
     return json(200, { ok: true });
   } catch (e) {
+    // Pagamento inexistente (ex.: "Simular notificação" do Mercado Pago): não adianta tentar de novo
+    if (e.status === 404) { console.log(`[webhook] pagamento ${dataId} não encontrado no Mercado Pago (simulação?)`); return json(200, { ok: true, missing: dataId }); }
     console.error("[webhook] erro", e.status, e.message);
     return json(500, { message: "erro ao processar" }); // o Mercado Pago tenta de novo depois
   }

@@ -19,7 +19,9 @@ function safeEq(x, y) {
   const b = crypto.createHash("sha256").update(String(y)).digest();
   return crypto.timingSafeEqual(a, b);
 }
-const passwordOk = (pw) => (process.env.ADMIN_PASSWORD || "").length >= 8 && !!pw && safeEq(pw, process.env.ADMIN_PASSWORD);
+// Espaços e quebras de linha nas pontas são ignorados (é comum colar a senha no Vercel com um espaço no fim)
+const adminPassword = () => (process.env.ADMIN_PASSWORD || "").trim();
+const passwordOk = (pw) => adminPassword().length >= 8 && !!String(pw).trim() && safeEq(String(pw).trim(), adminPassword());
 /** Sessão: o navegador guarda só um token assinado que expira em 8 h (nunca a senha). */
 function authorized(req) {
   const given = (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, "");
@@ -31,7 +33,7 @@ function authorized(req) {
 async function handler(req) {
   const blocked = guard(req, "admin", 30, 60); if (blocked) return blocked;
   if (!["GET", "POST"].includes(req.method)) return methodNotAllowed(["GET", "POST"]);
-  if (!process.env.ADMIN_PASSWORD || process.env.ADMIN_PASSWORD.length < 8) {
+  if (adminPassword().length < 8) {
     return json(503, { message: "Defina a variável ADMIN_PASSWORD (mínimo de 8 caracteres) nas variáveis de ambiente do Vercel para usar o painel." });
   }
   // Bloqueio por força bruta: 5 senhas erradas em 15 min travam o IP por 15 min
