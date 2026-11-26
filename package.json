@@ -7,8 +7,7 @@
   "scripts": {
     "build": "eleventy",
     "dev": "eleventy --serve --port=8080",
-    "start": "eleventy && node scripts/dev.mjs",
-    "migrate:netlify": "node scripts/migrate-netlify-blobs.mjs"
+    "start": "eleventy && node scripts/dev.mjs"
   },
   "engines": {
     "node": "22.x"
@@ -16,8 +15,5 @@
   "dependencies": {
     "@11ty/eleventy": "3.1.2",
     "@upstash/redis": "^1.41.1"
-  },
-  "devDependencies": {
-    "@netlify/blobs": "^10.0.11"
   }
 }

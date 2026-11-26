@@ -104,7 +104,7 @@ export function notifyMerchantForm(f, site) {
 
 /** Código de confirmação da conta do cliente. */
 export async function sendAccountCode(user, code, kind = "verify") {
-  const site = configuredSiteUrl() || "https://www.elixirdaterra.com.br";
+  const site = configuredSiteUrl() || "https://elixirdaterra.com.br";
   const body = `<p style="font-size:15px;line-height:1.6">Olá, ${esc(String(user.name || "").split(" ")[0])}! ${kind === "reset" ? "Use o código abaixo para criar uma nova senha na sua conta Elixir da Terra:" : "Use o código abaixo para confirmar seu e-mail na sua conta Elixir da Terra:"}</p>
   <p style="font-size:32px;font-weight:bold;letter-spacing:6px;color:#800000;margin:18px 0">${esc(code)}</p>
   <p style="font-size:13px;color:#7a6e66">O código vale por 15 minutos. Se não foi você, ignore este e-mail.</p>`;

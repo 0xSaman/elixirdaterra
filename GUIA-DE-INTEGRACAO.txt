@@ -11,7 +11,7 @@ ligar o Mercado Pago e operar os pedidos no dia a dia. Siga na ordem.
 ---------------------------------------------------------------------
  1. O que vem no projeto
  2. Antes de publicar (checklist obrigatório)
- 3. Publicar no Vercel (e migrar da Netlify)
+ 3. Publicar no Vercel e ligar o domínio
  4. Ligar o Mercado Pago (gateway)
  5. Testar pagamentos (modo teste)
  6. Ir para produção (vender de verdade)
@@ -52,7 +52,6 @@ Pastas e arquivos importantes
   server/                   Código compartilhado do back-end
   vercel.json               Configuração do Vercel: build, redirecionamentos e
                             cabeçalhos de segurança (não precisa mexer)
-  scripts/migrate-netlify-blobs.mjs   Copia os dados da Netlify para o Vercel
 
 Tecnologia
   - Eleventy (gerador de site estático): páginas HTML puras, muito rápidas
@@ -85,7 +84,7 @@ Revise também:
 
 
 ---------------------------------------------------------------------
-3. PUBLICAR NO VERCEL (E MIGRAR DA NETLIFY)
+3. PUBLICAR NO VERCEL E LIGAR O DOMÍNIO
 ---------------------------------------------------------------------
 3.1 Importar o projeto
   1. O código fica no GitHub (repositório 0xSaman/elixirdaterra).
@@ -108,33 +107,20 @@ Revise também:
   Sem o banco, a loja continua no ar, mas o pagamento real, a conta do
   cliente, o rastreio, o painel e os formulários respondem com erro.
 
-3.3 Migrar os dados que já estão na Netlify (pedidos, contas, carrinhos)
-  Faça isto UMA vez, logo antes de apontar o domínio para o Vercel:
-  1. Netlify › Project configuration › General › copie o "Project ID".
-  2. Netlify › User settings › Applications › Personal access tokens ›
-     crie um token.
-  3. Vercel › Storage › (seu banco Upstash) › aba ".env.local" ›
-     copie KV_REST_API_URL e KV_REST_API_TOKEN.
-  4. No computador, na pasta do projeto:
-       npm install
-       NETLIFY_SITE_ID=... NETLIFY_AUTH_TOKEN=... \
-       KV_REST_API_URL=... KV_REST_API_TOKEN=... npm run migrate:netlify
-     (para só conferir antes:  npm run migrate:netlify -- --dry-run)
-  5. Os clientes continuam logados se você copiar também a variável
-     SESSION_SECRET da Netlify para o Vercel (se ela existir lá). Se não
-     existir, a chave das sessões é migrada junto com os dados.
-  Nada é apagado na Netlify. Se aparecerem pedidos novos na Netlify depois
-  da migração, rode o comando de novo (ele sobrescreve com a versão atual).
-
-3.4 Domínio próprio (ex.: www.elixirdaterra.com.br)
-  1. Vercel › Project › Settings › Domains › Add: www.elixirdaterra.com.br
-     e elixirdaterra.com.br (redirecionando para o www).
-  2. No Registro.br (ou onde está o DNS), troque os registros que hoje
-     apontam para a Netlify pelos que o Vercel mostrar (A 76.76.21.21 /
-     CNAME cname.vercel-dns.com, ou o valor exato indicado na tela).
-     O HTTPS é ativado automaticamente.
-  3. Cadastre SITE_URL = https://www.elixirdaterra.com.br e faça novo deploy.
-  4. Só depois que o domínio abrir pelo Vercel, desligue o site na Netlify.
+3.3 Domínio próprio (elixirdaterra.com.br)
+  O endereço principal é SEM www: https://elixirdaterra.com.br
+  1. Vercel › Project › Settings › Domains: elixirdaterra.com.br ligado ao
+     ambiente Production e www.elixirdaterra.com.br redirecionando (308)
+     para elixirdaterra.com.br.
+  2. O DNS do domínio fica no Vercel: no painel onde o domínio foi
+     registrado (Hostinger), os servidores DNS são
+       ns1.vercel-dns.com
+       ns2.vercel-dns.com
+     O Vercel cria os registros do site e o HTTPS sozinho. Se um dia for
+     preciso criar outros registros (e-mail, Resend etc.), eles são feitos
+     em Vercel › Domains › elixirdaterra.com.br › DNS Records.
+  3. SITE_URL = https://elixirdaterra.com.br (Production). Ela define o
+     endereço usado nos e-mails, no sitemap e nos avisos do Mercado Pago.
 
 Variáveis de ambiente (senhas e chaves)
   Vercel › Project › Settings › Environment Variables › Add.
@@ -190,11 +176,11 @@ publicar e revisar o site antes de ligar os pagamentos.
 4.3 Webhook (avisa a loja quando um Pix ou boleto é pago)
   1. No painel da aplicação › "Webhooks" › "Configurar notificações".
   2. URL de produção:  https://SEU-SITE/api/webhook
-     (ex.: https://www.elixirdaterra.com.br/api/webhook)
+     (ex.: https://elixirdaterra.com.br/api/webhook — sem www, porque o www
+     redireciona e o aviso do Mercado Pago pode se perder no redirecionamento)
   3. Marque o evento "Pagamentos".
   4. Salve e copie a "Assinatura secreta" → variável MP_WEBHOOK_SECRET.
   5. Faça um novo deploy no Vercel.
-  Se o domínio continuar o mesmo, a URL do webhook não muda na migração.
   Se for testar antes pelo endereço .vercel.app, use temporariamente
   https://elixirdaterra.vercel.app/api/webhook e volte para o domínio final.
   Obs.: a tela do Pix também consulta o pagamento a cada 5 segundos, então
@@ -312,8 +298,6 @@ banco da seção 3.2).
      de WhatsApp/e-mail e "Concluir".
   2. Com o Resend ativo (seção 8), cada envio também chega por e-mail em
      ORDER_EMAIL_TO.
-  3. Os envios antigos que estão em Netlify › Forms NÃO são migrados:
-     exporte em CSV pela Netlify antes de desligar o site, se quiser guardar.
 
 
 ---------------------------------------------------------------------
@@ -553,7 +537,7 @@ SEGURANÇA (o que o site já faz)
 - APIs: só aceitam chamadas do próprio site (bloqueio de origem/CORS) e têm limite
   de requisições por IP. Para liberar outro domínio, crie ALLOWED_ORIGINS no Vercel.
 - Webhook: só aceita notificações com a assinatura secreta do Mercado Pago válida.
-  Use a URL com www: https://www.elixirdaterra.com.br/api/webhook
+  Use a URL sem www: https://elixirdaterra.com.br/api/webhook
 - Cabeçalhos: HTTPS obrigatório (HSTS), Content-Security-Policy gerada a cada build,
   proteção contra iframe de outros sites, noindex em /checkout/, /painel/ e /api/.
 - Erros mostram mensagens genéricas ao cliente; detalhes ficam só nos logs da

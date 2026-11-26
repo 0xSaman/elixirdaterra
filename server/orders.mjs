@@ -131,9 +131,6 @@ export async function listForms(limit = 200) {
   return all.filter((f) => f && !f.done).sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1)).slice(0, limit);
 }
 
-/* Exportação/importação usada na migração Netlify → Vercel */
-export async function rawStore() { return getStoreImpl(); }
-
 /** Muda o status registrando no histórico. Retorna true se mudou. */
 export function setStatus(order, status) {
   if (order.status === status) return false;

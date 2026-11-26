@@ -1,4 +1,4 @@
-// Dados gerais da loja. Defina SITE_URL no Vercel com o domínio final (ex.: https://www.elixirdaterra.com.br).
+// Dados gerais da loja. Defina SITE_URL no Vercel com o domínio final (https://elixirdaterra.com.br, sem www).
 export default {
   name: "Elixir da Terra",
   url: (process.env.SITE_URL || process.env.URL || "https://elixirdaterra.com.br").replace(/\/$/, ""),
