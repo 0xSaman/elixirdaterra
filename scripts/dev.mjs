@@ -1,6 +1,6 @@
-/* Servidor local que imita a Netlify: serve o site gerado (_site) e as funções em /api/*.
+/* Servidor local que imita o Vercel: serve o site gerado (_site) e as funções de api/ em /api/*.
    Uso:  npm run build && node scripts/dev.mjs     → http://localhost:8888
-   (lê variáveis do arquivo .env, se existir). Alternativa oficial: "npx netlify dev". */
+   (lê variáveis do arquivo .env, se existir). Alternativa oficial: "npx vercel dev". */
 import http from "node:http";
 import fs from "node:fs";
 import path from "node:path";
@@ -16,12 +16,12 @@ if (fs.existsSync(envFile)) {
   }
 }
 
-// carrega as funções e seus caminhos (export const config = { path })
+// carrega as funções como o Vercel: api/<nome>.js → /api/<nome>, com um export por método (GET, POST…)
 const routes = {};
-for (const f of fs.readdirSync(path.join(ROOT, "netlify/functions"))) {
-  if (!f.endsWith(".mjs")) continue;
-  const mod = await import(pathToFileURL(path.join(ROOT, "netlify/functions", f)).href);
-  routes[mod.config?.path || `/.netlify/functions/${f.replace(/\.mjs$/, "")}`] = mod.default;
+for (const f of fs.readdirSync(path.join(ROOT, "api"))) {
+  if (!f.endsWith(".js") || f.startsWith("_")) continue;
+  const mod = await import(pathToFileURL(path.join(ROOT, "api", f)).href);
+  routes[`/api/${f.replace(/\.js$/, "")}`] = (req) => (mod[req.method] ? mod[req.method](req) : new Response("Method Not Allowed", { status: 405 }));
 }
 
 const TYPES = { ".html": "text/html; charset=utf-8", ".css": "text/css", ".js": "text/javascript", ".json": "application/json", ".png": "image/png", ".jpg": "image/jpeg", ".webp": "image/webp", ".svg": "image/svg+xml", ".ico": "image/x-icon", ".xml": "application/xml", ".txt": "text/plain", ".webmanifest": "application/manifest+json" };
@@ -39,7 +39,6 @@ http.createServer(async (req, res) => {
     } catch (e) { console.error(e); res.writeHead(500); res.end("erro"); }
     return;
   }
-  if (req.method === "POST" && url.pathname === "/") { res.writeHead(200); return res.end("ok (formulário simulado)"); }
   let file = path.join(ROOT, "_site", decodeURIComponent(url.pathname));
   if (!file.startsWith(path.join(ROOT, "_site"))) { res.writeHead(403); return res.end(); }
   if (fs.existsSync(file) && fs.statSync(file).isDirectory()) file = path.join(file, "index.html");

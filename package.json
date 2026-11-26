@@ -3,14 +3,21 @@
   "version": "2.0.0",
   "private": true,
   "type": "module",
-  "description": "Loja Elixir da Terra — Eleventy + Netlify Functions + Mercado Pago",
+  "description": "Loja Elixir da Terra — Eleventy + Vercel Functions + Mercado Pago",
   "scripts": {
     "build": "eleventy",
-    "dev": "eleventy --serve --port=8080"
+    "dev": "eleventy --serve --port=8080",
+    "start": "eleventy && node scripts/dev.mjs",
+    "migrate:netlify": "node scripts/migrate-netlify-blobs.mjs"
   },
-  "engines": { "node": ">=20" },
+  "engines": {
+    "node": "22.x"
+  },
   "dependencies": {
     "@11ty/eleventy": "3.1.2",
-    "@netlify/blobs": "10.0.11"
+    "@upstash/redis": "^1.41.1"
+  },
+  "devDependencies": {
+    "@netlify/blobs": "^10.0.11"
   }
 }

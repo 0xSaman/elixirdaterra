@@ -188,14 +188,14 @@
     document.addEventListener("keydown", function (e) { if (e.key === "Escape") { close(); closeDrawer(); } });
   }
 
-  /* ---------- newsletter (Netlify Forms) ---------- */
+  /* ---------- formulários (enviados para /api/form) ---------- */
   function setupForms() {
-    $$("form[data-netlify-ajax]").forEach(function (form) {
+    $$("form[data-ajax-form]").forEach(function (form) {
       form.addEventListener("submit", function (e) {
         e.preventDefault();
         var btn = form.querySelector("button[type=submit]"); if (btn) btn.disabled = true;
         var data = new URLSearchParams(new FormData(form)).toString();
-        fetch("/", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: data })
+        fetch("/api/form", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: data })
           .then(function (r) { if (!r.ok) throw 0; form.reset(); toast(form.getAttribute("data-success") || "Enviado! Obrigado."); })
           .catch(function () { toast("Não foi possível enviar agora. Tente de novo em instantes."); })
           .then(function () { if (btn) btn.disabled = false; });
@@ -248,7 +248,7 @@
       if (!isMail && !isPhone) { msg.textContent = "Digite um e-mail ou WhatsApp com DDD."; return; }
       msg.textContent = "";
       var data = new URLSearchParams(new FormData(e.target)).toString();
-      fetch("/", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: data }).catch(function () {});
+      fetch("/api/form", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: data }).catch(function () {});
       try { localStorage.setItem("edt_coupon", CODE); } catch (x) {}
       track("generate_lead", { method: isMail ? "email" : "whatsapp" });
       $("#welcome-step1").hidden = true; $("#welcome-step2").hidden = false;

@@ -1,4 +1,4 @@
-// Dados gerais da loja. A Netlify define process.env.URL automaticamente no deploy.
+// Dados gerais da loja. Defina SITE_URL no Vercel com o domínio final (ex.: https://www.elixirdaterra.com.br).
 export default {
   name: "Elixir da Terra",
   url: (process.env.SITE_URL || process.env.URL || "https://elixirdaterra.com.br").replace(/\/$/, ""),

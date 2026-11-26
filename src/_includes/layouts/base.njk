@@ -92,7 +92,7 @@
         <span class="eyebrow">Primeira compra</span>
         <h2 id="welcome-title" class="welcome__title">Ganhe <em>10% off</em> no seu primeiro Elixir</h2>
         <p class="welcome__text">Deixe seu e-mail ou WhatsApp e receba o cupom agora.</p>
-        <form name="primeira-compra" method="POST" data-netlify="true" netlify-honeypot="empresa" id="welcome-form" novalidate>
+        <form name="primeira-compra" method="POST" action="/api/form" id="welcome-form" novalidate>
           <input type="hidden" name="form-name" value="primeira-compra">
           <p hidden><label>Empresa <input name="empresa" tabindex="-1" autocomplete="off"></label></p>
           <input type="text" name="contato" id="welcome-contact" placeholder="Seu e-mail ou WhatsApp" autocomplete="email" maxlength="160" required aria-label="Seu e-mail ou WhatsApp">

@@ -55,7 +55,9 @@ export default function (eleventyConfig) {
     }
   });
 
-  // Content-Security-Policy com hashes dos scripts inline (gerado a cada build em _site/_headers)
+  // Content-Security-Policy com hashes dos scripts inline, gerada a cada build e gravada como
+  // <meta http-equiv> no início do <head> de cada página (o Vercel não lê o arquivo _headers).
+  // frame-ancestors não vale em <meta>: ele é enviado como cabeçalho pelo vercel.json.
   eleventyConfig.on("eleventy.after", async ({ dir }) => {
     const fs = await import("node:fs/promises"); const path = await import("node:path"); const crypto = await import("node:crypto");
     const hashes = new Set();
@@ -85,10 +87,23 @@ export default function (eleventyConfig) {
       "object-src 'none'",
       "base-uri 'self'",
       "form-action 'self'",
-      "frame-ancestors 'self'",
       "upgrade-insecure-requests"
     ].join("; ");
-    await fs.writeFile(path.join(dir.output, "_headers"), `/*\n  Content-Security-Policy: ${csp}\n`);
+    const meta = `<meta http-equiv="Content-Security-Policy" content="${csp.replace(/"/g, "&quot;")}">`;
+    async function inject(d) {
+      for (const e of await fs.readdir(d, { withFileTypes: true })) {
+        const p = path.join(d, e.name);
+        if (e.isDirectory()) await inject(p);
+        else if (p.endsWith(".html")) {
+          const html = await fs.readFile(p, "utf8");
+          if (!/<head[^>]*>/i.test(html) || html.includes('http-equiv="Content-Security-Policy"')) continue;
+          // logo depois do <meta charset> (que precisa ficar nos primeiros 1024 bytes)
+          const out = /<meta charset=[^>]*>/i.test(html) ? html.replace(/<meta charset=[^>]*>/i, (m) => m + meta) : html.replace(/<head([^>]*)>/i, (m) => m + meta);
+          await fs.writeFile(p, out);
+        }
+      }
+    }
+    await inject(dir.output);
   });
 
   return {

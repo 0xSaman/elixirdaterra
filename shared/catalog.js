@@ -62,7 +62,7 @@ export const settings = {
   pixDiscountPercent: 0, // desconto no Pix desativado (coloque 5 para voltar a dar 5%)
   installments: { max: 12, noInterest: 3, minInstallmentValue: 5 },
   /* FRETE — calculado pelo CEP.
-     Com MELHOR_ENVIO_TOKEN na Netlify, as cotações vêm em tempo real (Correios e transportadoras).
+     Com MELHOR_ENVIO_TOKEN no Vercel, as cotações vêm em tempo real (Correios e transportadoras).
      Sem o token (ou se o Melhor Envio falhar), usa a tabela de reserva abaixo, a partir de Alfredo Wagner/SC. */
   shipping: {
     originCep: "88450000",
@@ -101,7 +101,7 @@ export const ufRegion = {
   PA: "N", AM: "N", AP: "N", RR: "N", RO: "N", AC: "N", TO: "N"
 };
 
-// Cupons padrão (podem ser substituídos pela variável de ambiente COUPONS na Netlify)
+// Cupons padrão (podem ser substituídos pela variável de ambiente COUPONS no Vercel)
 export const defaultCoupons = {
   BEMVINDO10: { type: "percent", value: 10, firstPurchaseOnly: true } // só na primeira compra (checado por CPF, e-mail e celular)
 };

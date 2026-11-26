@@ -3,7 +3,7 @@
   Loja + checkout (Pix, cartão, boleto) + rastreio + blog + painel
 =====================================================================
 
-Este guia explica, passo a passo, como colocar a loja no ar na Netlify,
+Este guia explica, passo a passo, como colocar a loja no ar no Vercel,
 ligar o Mercado Pago e operar os pedidos no dia a dia. Siga na ordem.
 
 ---------------------------------------------------------------------
@@ -11,7 +11,7 @@ ligar o Mercado Pago e operar os pedidos no dia a dia. Siga na ordem.
 ---------------------------------------------------------------------
  1. O que vem no projeto
  2. Antes de publicar (checklist obrigatório)
- 3. Publicar na Netlify
+ 3. Publicar no Vercel (e migrar da Netlify)
  4. Ligar o Mercado Pago (gateway)
  5. Testar pagamentos (modo teste)
  6. Ir para produção (vender de verdade)
@@ -47,14 +47,19 @@ Pastas e arquivos importantes
   src/_data/testimonials.js Depoimentos
   src/blog/posts/           Artigos do blog (um arquivo .md por artigo)
   src/assets/img/           Imagens e logos
-  netlify/functions/        Back-end: pagamento, webhook, rastreio, painel
-  netlify.toml              Configuração da Netlify (não precisa mexer)
+  api/                      Back-end (funções do Vercel): pagamento, webhook,
+                            rastreio, conta, painel, formulários
+  server/                   Código compartilhado do back-end
+  vercel.json               Configuração do Vercel: build, redirecionamentos e
+                            cabeçalhos de segurança (não precisa mexer)
+  scripts/migrate-netlify-blobs.mjs   Copia os dados da Netlify para o Vercel
 
 Tecnologia
   - Eleventy (gerador de site estático): páginas HTML puras, muito rápidas
     e ótimas para o Google.
-  - Netlify Functions: o "servidor" que fala com o Mercado Pago.
-  - Netlify Blobs: banco de dados de pedidos (já incluso, sem configurar).
+  - Vercel Functions (pasta api/): o "servidor" que fala com o Mercado Pago.
+  - Upstash Redis (pelo Marketplace do Vercel, plano grátis): banco de dados
+    de pedidos, contas, carrinhos abandonados e formulários.
   - Mercado Pago, API de Pagamentos (Checkout Transparente): o cliente paga
     sem sair do seu site.
 
@@ -80,43 +85,64 @@ Revise também:
 
 
 ---------------------------------------------------------------------
-3. PUBLICAR NA NETLIFY
+3. PUBLICAR NO VERCEL (E MIGRAR DA NETLIFY)
 ---------------------------------------------------------------------
-Importante: o modo "arrastar a pasta" da Netlify NÃO roda as funções de
-pagamento. Use o GitHub (recomendado) ou a linha de comando.
-
-OPÇÃO A — GitHub (recomendado; cada alteração publica sozinha)
-  1. Crie uma conta em github.com e um repositório novo (pode ser privado).
-  2. Envie todos os arquivos desta pasta para o repositório.
-     (No site do GitHub: "Add file" › "Upload files" e arraste tudo,
-      MENOS as pastas node_modules e _site, se existirem.)
-  3. Crie uma conta em netlify.com.
-  4. "Add new project" › "Import an existing project" › GitHub ›
-     escolha o repositório.
-  5. A Netlify lê o netlify.toml sozinha:
+3.1 Importar o projeto
+  1. O código fica no GitHub (repositório 0xSaman/elixirdaterra).
+     NÃO envie as pastas node_modules, _site, .data e .vercel.
+  2. vercel.com › Add New › Project › importe o repositório.
+  3. O Vercel lê o vercel.json sozinho:
+       Framework:          Eleventy
        Build command:      npm run build
-       Publish directory:  _site
-       Functions:          netlify/functions
+       Output directory:   _site
+       Funções:            pasta api/ (cada arquivo vira /api/<nome>)
      Só clique em "Deploy".
-  6. Em 1–2 minutos o site estará em algo como
-     https://nome-aleatorio.netlify.app
 
-OPÇÃO B — Linha de comando (precisa de Node.js instalado)
-  npm install
-  npx netlify-cli login
-  npx netlify-cli deploy --build --prod
+3.2 Banco de dados (OBRIGATÓRIO para pedidos, contas, painel e formulários)
+  1. No projeto: Storage › Create Database (ou Marketplace) ›
+     "Upstash for Redis" › plano Free › região São Paulo (gru1) se houver,
+     senão a mais próxima › conecte ao projeto (Production, Preview e
+     Development).
+  2. O Vercel cria sozinho as variáveis KV_REST_API_URL e KV_REST_API_TOKEN.
+  3. Faça um novo deploy (Deployments › ⋯ › Redeploy).
+  Sem o banco, a loja continua no ar, mas o pagamento real, a conta do
+  cliente, o rastreio, o painel e os formulários respondem com erro.
 
-Domínio próprio (ex.: elixirdaterra.com.br)
-  1. Netlify › Domain management › Add a domain.
-  2. Siga as instruções para apontar o DNS (no Registro.br ou onde
-     comprou o domínio). O HTTPS (cadeado) é ativado automaticamente.
-  3. Depois cadastre a variável SITE_URL com o endereço final
-     (veja a seção 4).
+3.3 Migrar os dados que já estão no Vercel (pedidos, contas, carrinhos)
+  Faça isto UMA vez, logo antes de apontar o domínio para o Vercel:
+  1. Netlify › Project configuration › General › copie o "Project ID".
+  2. Netlify › User settings › Applications › Personal access tokens ›
+     crie um token.
+  3. Vercel › Storage › (seu banco Upstash) › aba ".env.local" ›
+     copie KV_REST_API_URL e KV_REST_API_TOKEN.
+  4. No computador, na pasta do projeto:
+       npm install
+       NETLIFY_SITE_ID=... NETLIFY_AUTH_TOKEN=... \
+       KV_REST_API_URL=... KV_REST_API_TOKEN=... npm run migrate:netlify
+     (para só conferir antes:  npm run migrate:netlify -- --dry-run)
+  5. Os clientes continuam logados se você copiar também a variável
+     SESSION_SECRET da Netlify para o Vercel (se ela existir lá). Se não
+     existir, a chave das sessões é migrada junto com os dados.
+  Nada é apagado no Vercel. Se aparecerem pedidos novos no Vercel depois
+  da migração, rode o comando de novo (ele sobrescreve com a versão atual).
+
+3.4 Domínio próprio (ex.: www.elixirdaterra.com.br)
+  1. Vercel › Project › Settings › Domains › Add: www.elixirdaterra.com.br
+     e elixirdaterra.com.br (redirecionando para o www).
+  2. No Registro.br (ou onde está o DNS), troque os registros que hoje
+     apontam para a Netlify pelos que o Vercel mostrar (A 76.76.21.21 /
+     CNAME cname.vercel-dns.com, ou o valor exato indicado na tela).
+     O HTTPS é ativado automaticamente.
+  3. Cadastre SITE_URL = https://www.elixirdaterra.com.br e faça novo deploy.
+  4. Só depois que o domínio abrir pelo Vercel, desligue o site no Vercel.
 
 Variáveis de ambiente (senhas e chaves)
-  Netlify › Site configuration › Environment variables › Add a variable.
+  Vercel › Project › Settings › Environment Variables › Add.
+  Marque o ambiente "Production" (e "Preview" se quiser testar em previews).
   Depois de criar ou mudar variáveis, faça um novo deploy:
-  Deploys › Trigger deploy › Deploy site.
+  Deployments › ⋯ › Redeploy.
+  Para trazer tudo da Netlify: Netlify › Project configuration ›
+  Environment variables › copie cada valor para o Vercel com o MESMO nome.
 
   Variável            Obrigatória?  O que é
   ------------------  ------------  -------------------------------------------
@@ -124,6 +150,9 @@ Variáveis de ambiente (senhas e chaves)
   MP_ACCESS_TOKEN     sim           Access Token do Mercado Pago (SECRETO)
   MP_WEBHOOK_SECRET   recomendada   Assinatura secreta dos webhooks
   ADMIN_PASSWORD      sim           Senha do /painel/ (mín. 8 caracteres)
+  KV_REST_API_URL     sim           Criada pelo Vercel ao conectar o Upstash
+  KV_REST_API_TOKEN   sim           Criada pelo Vercel ao conectar o Upstash
+  SESSION_SECRET      recomendada   Texto longo e aleatório (sessões da conta)
   SITE_URL            recomendada   https://seudominio.com.br (sem barra no fim)
   RESEND_API_KEY      opcional      Chave do Resend (e-mails automáticos)
   ORDER_EMAIL_TO      opcional      Seu e-mail para receber os pedidos
@@ -151,7 +180,7 @@ publicar e revisar o site antes de ligar os pagamentos.
        Public Key   → variável MP_PUBLIC_KEY
        Access Token → variável MP_ACCESS_TOKEN
      NUNCA publique o Access Token em lugar nenhum além das variáveis
-     da Netlify.
+     de ambiente do Vercel.
 
 4.2 Chave Pix (obrigatório para o Pix funcionar)
   No app ou site do Mercado Pago, cadastre uma chave Pix na sua conta
@@ -164,7 +193,10 @@ publicar e revisar o site antes de ligar os pagamentos.
      (ex.: https://www.elixirdaterra.com.br/api/webhook)
   3. Marque o evento "Pagamentos".
   4. Salve e copie a "Assinatura secreta" → variável MP_WEBHOOK_SECRET.
-  5. Faça um novo deploy na Netlify.
+  5. Faça um novo deploy no Vercel.
+  Se o domínio continuar o mesmo, a URL do webhook não muda na migração.
+  Se for testar antes pelo endereço .vercel.app, use temporariamente
+  https://elixirdaterra.vercel.app/api/webhook e volte para o domínio final.
   Obs.: a tela do Pix também consulta o pagamento a cada 5 segundos, então
   a confirmação aparece para o cliente mesmo que o webhook atrase.
 
@@ -246,8 +278,8 @@ contrato. Se no futuro você usar o Melhor Envio ou tiver contrato com os
 Correios, dá para automatizar a atualização. Por enquanto o código vai
 manualmente no painel (leva 10 segundos por pedido).
 
-Onde os pedidos ficam guardados: no Netlify Blobs, dentro da sua conta
-Netlify. Eles também ficam registrados no Mercado Pago (Atividades),
+Onde os pedidos ficam guardados: no banco Upstash Redis conectado ao
+projeto no Vercel (Storage). Eles também ficam registrados no Mercado Pago (Atividades),
 com o número EDT-... no campo "referência externa".
 
 
@@ -273,11 +305,15 @@ Mercado Pago, só não há e-mails automáticos.
 ---------------------------------------------------------------------
 9. NEWSLETTER E FORMULÁRIO DE CONTATO
 ---------------------------------------------------------------------
-Os dois usam o Netlify Forms (grátis, sem configurar servidor).
-  1. Netlify › Forms › habilite a detecção de formulários
-     ("Enable form detection") e faça um novo deploy.
-  2. Os envios aparecem em Netlify › Forms (newsletter e contato).
-  3. Para receber por e-mail: Forms › Form notifications › Add notification.
+O formulário de contato e a janela do cupom de primeira compra enviam para
+/api/form (substitui o Netlify Forms; não precisa configurar nada além do
+banco da seção 3.2).
+  1. Os envios aparecem no /painel/, em "Mensagens e cupons", com botões
+     de WhatsApp/e-mail e "Concluir".
+  2. Com o Resend ativo (seção 8), cada envio também chega por e-mail em
+     ORDER_EMAIL_TO.
+  3. Os envios antigos que estão em Netlify › Forms NÃO são migrados:
+     exporte em CSV pela Netlify antes de desligar o site, se quiser guardar.
 
 
 ---------------------------------------------------------------------
@@ -342,7 +378,7 @@ Esse arquivo é a ÚNICA fonte de preço: o servidor recalcula tudo a partir
 dele, então ninguém consegue pagar menos alterando a página.
 
 Cupons: edite defaultCoupons em shared/catalog.js ou crie a variável
-COUPONS na Netlify, por exemplo:
+COUPONS no Vercel, por exemplo:
   {"BEMVINDO10":{"type":"percent","value":10},
    "FRETE20":{"type":"fixed","value":20,"minSubtotal":100},
    "BLACK":{"type":"percent","value":15,"expiresAt":"2026-11-30T23:59:59-03:00"}}
@@ -358,9 +394,10 @@ Precisa do Node.js 20 ou mais novo (nodejs.org).
   npm install
   npm run build
   node scripts/dev.mjs          → abre em http://localhost:8888
-Para testar com o Mercado Pago, crie um arquivo .env (copie de
-.env.example) com as credenciais de TESTE. Localmente os pedidos ficam
-na pasta .data/. Alternativa oficial: npx netlify-cli dev
+  (ou, de uma vez só:  npm start)
+Para testar com o Mercado Pago, crie um arquivo .env com as credenciais
+de TESTE. Localmente, sem KV_REST_API_URL, os pedidos ficam na pasta
+.data/. Alternativa oficial: npx vercel dev
 
 
 ---------------------------------------------------------------------
@@ -421,7 +458,7 @@ g) RENDIMENTO: o site antigo falava em "ciclo de 15 dias" por frasco.
   - Webhook: só aceita notificações com assinatura válida do Mercado Pago.
   - Painel: protegido por senha; a página de rastreio exige número do
     pedido + e-mail e não mostra dados sensíveis.
-  - Cabeçalhos de segurança (HTTPS forçado etc.) no netlify.toml.
+  - Cabeçalhos de segurança (HTTPS forçado etc.) no vercel.json.
 
 
 ---------------------------------------------------------------------
@@ -436,7 +473,7 @@ Pix não gera ("A loja ainda não tem uma chave Pix cadastrada...")
 Pedido pago no Pix/boleto, mas o painel continua "Aguardando"
   → Confira o webhook (URL https://SEU-SITE/api/webhook, evento
     "Pagamentos") e a variável MP_WEBHOOK_SECRET. Veja os registros em
-    Netlify › Logs › Functions › webhook.
+    Vercel › Project › Logs (filtre por /api/webhook).
 
 "Senha incorreta" ou painel pedindo ADMIN_PASSWORD
   → Crie a variável ADMIN_PASSWORD (mínimo 8 caracteres) e faça novo
@@ -446,16 +483,20 @@ Cartão não aparece / "Não foi possível carregar o pagamento com cartão"
   → Bloqueador de anúncios ou rede bloqueando sdk.mercadopago.com.
     Peça ao cliente para tentar outro navegador ou pagar com Pix.
 
-Formulários (newsletter/contato) não chegam
-  → Habilite "form detection" em Netlify › Forms e faça novo deploy.
+Formulários (cupom/contato) não chegam
+  → Confira se o banco Upstash está conectado (seção 3.2). Eles aparecem
+    no /painel/ em "Mensagens e cupons".
+
+Erro "Não foi possível consultar agora" no rastreio/conta/painel
+  → Banco não conectado: Vercel › Storage › Upstash for Redis (seção 3.2).
 
 Onde vejo erros?
-  → Netlify › Logs › Functions. Cada pagamento registra uma linha
+  → Vercel › Project › Logs. Cada pagamento registra uma linha
     "[pedido] EDT-... pix 256.5 → pending".
 
 Documentação oficial
   Mercado Pago (desenvolvedores): https://www.mercadopago.com.br/developers
-  Netlify Functions: https://docs.netlify.com/build/functions/overview
+  Vercel Functions: https://vercel.com/docs/functions
 =====================================================================
 
 ==========================================================================
@@ -472,7 +513,7 @@ recalcula o valor antes de cobrar.
    a) Crie uma conta grátis em https://melhorenvio.com.br com os dados da empresa.
    b) No painel: Gerenciar > Tokens > Novo token (marque as permissões de
       cotação "shipping-calculate").
-   c) Na Netlify (Project configuration > Environment variables) crie:
+   c) No Vercel (Project > Settings > Environment Variables) crie:
         MELHOR_ENVIO_TOKEN   = o token gerado
       Opcionais:
         SHIPPING_ORIGIN_CEP  = CEP de onde sai o pacote (padrão 88450000)
@@ -482,7 +523,7 @@ recalcula o valor antes de cobrar.
 
 Desconto no Pix: desativado (shared/catalog.js > settings.pixDiscountPercent = 0).
 
-Frete grátis acima de um valor (opcional): crie na Netlify a variável
+Frete grátis acima de um valor (opcional): crie no Vercel a variável
   FREE_SHIPPING_ABOVE = 250   (exemplo: deixa grátis o Kit Família e o Kit Coletivo)
 ou altere settings.shipping.freeAbove em shared/catalog.js. Sem a variável, fica desligado.
 Mini Envios (frasco individual, até 300 g e R$ 100) aparece automaticamente quando houver
@@ -493,7 +534,7 @@ VENDAS: CUPOM DE PRIMEIRA COMPRA, CARRINHOS ABANDONADOS E RECOMPRA
 ==========================================================================
 - Janela "10% na primeira compra": aparece uma vez a cada 14 dias (ao tentar sair da
   página no computador, ou depois de alguns segundos/rolagem no celular). Os contatos
-  ficam na Netlify em Forms > "primeira-compra". O cupom BEMVINDO10 é aplicado sozinho
+  ficam no /painel/ em "Mensagens e cupons". O cupom BEMVINDO10 é aplicado sozinho
   no checkout.
 - Painel (/painel/) > "Carrinhos abandonados": quem preencheu os dados no checkout e não
   pagou há mais de 30 min. Botão de WhatsApp com mensagem pronta (com o cupom).
@@ -503,20 +544,20 @@ VENDAS: CUPOM DE PRIMEIRA COMPRA, CARRINHOS ABANDONADOS E RECOMPRA
 ==========================================================================
 SEGURANÇA (o que o site já faz)
 ==========================================================================
-- Chaves e senhas ficam só nas variáveis de ambiente da Netlify (nunca no código
+- Chaves e senhas ficam só nas variáveis de ambiente do Vercel (nunca no código
   nem no navegador). A Public Key do Mercado Pago é pública por natureza.
 - Preço, cupom e frete são sempre recalculados no servidor.
 - Painel: login gera um token assinado que expira em 8 h (a senha não fica salva
   no navegador). 5 senhas erradas em 15 min bloqueiam o IP por 15 min. CPF aparece
   mascarado (botão "mostrar").
 - APIs: só aceitam chamadas do próprio site (bloqueio de origem/CORS) e têm limite
-  de requisições por IP. Para liberar outro domínio, crie ALLOWED_ORIGINS na Netlify.
+  de requisições por IP. Para liberar outro domínio, crie ALLOWED_ORIGINS no Vercel.
 - Webhook: só aceita notificações com a assinatura secreta do Mercado Pago válida.
   Use a URL com www: https://www.elixirdaterra.com.br/api/webhook
 - Cabeçalhos: HTTPS obrigatório (HSTS), Content-Security-Policy gerada a cada build,
   proteção contra iframe de outros sites, noindex em /checkout/, /painel/ e /api/.
 - Erros mostram mensagens genéricas ao cliente; detalhes ficam só nos logs da
-  Netlify (Logs > Functions), incluindo tentativas bloqueadas ("[seguranca]").
+  Vercel (Project > Logs), incluindo tentativas bloqueadas ("[seguranca]").
 
 ==========================================================================
 CONTA DO CLIENTE (Minha conta)
@@ -528,7 +569,7 @@ CONTA DO CLIENTE (Minha conta)
 - 6 senhas erradas seguidas bloqueiam aquele e-mail por 15 minutos.
 - Pedidos aparecem na conta quando: a compra foi feita logado, o cliente vincula
   um pedido antigo (número + e-mail) ou confirma o e-mail por código.
-- Recomendado: crie na Netlify a variável SESSION_SECRET com um texto longo e
+- Recomendado: crie no Vercel a variável SESSION_SECRET com um texto longo e
   aleatório (ex.: 40 letras e números). Sem ela, o site usa uma chave derivada dos
   outros segredos.
 - Para o "Esqueci a senha" e a confirmação por e-mail funcionarem sozinhos, é
@@ -554,7 +595,7 @@ Por privacidade, a mensagem leva só o primeiro nome do cliente; os dados comple
 1. No celular com esse WhatsApp, salve o contato +34 644 56 55 18 (nome à sua escolha).
 2. Envie para ele a mensagem:  I allow callmebot to send me messages
 3. Em até 2 minutos ele responde com "Your APIKEY is ......". Copie esse número.
-4. Netlify > Site configuration > Environment variables > Add variable:
+4. Vercel > Project > Settings > Environment Variables > Add:
    WHATSAPP_ALERT_APIKEY = (o número que o bot mandou)
    (Opcional) WHATSAPP_ALERT_PHONE = outro número, só dígitos com 55, se quiser receber em outro WhatsApp.
 5. Faça um novo deploy. Pronto: o aviso sai uma única vez por pedido, quando o pagamento é aprovado.
@@ -564,7 +605,7 @@ AVISO DE VENDA NO CELULAR (ntfy — gratuito, sem cadastro) — RECOMENDADO
 ---------------------------------------------------------------------
 1. Instale o app "ntfy" (Play Store ou App Store).
 2. No app, toque em "+" (Subscribe to topic) e digite o tópico: elixir-vendas-9k559d81pcc5
-3. Netlify > Site configuration > Environment variables > Add variable:
+3. Vercel > Project > Settings > Environment Variables > Add:
    NTFY_TOPIC = elixir-vendas-9k559d81pcc5
 4. Novo deploy. A cada venda paga chega uma notificação com valor, itens e cidade; tocar nela abre o painel.
 Não divulgue o nome do tópico (quem souber o nome consegue ler os avisos).
@@ -574,5 +615,5 @@ CUPOM DE PRIMEIRA COMPRA (BEMVINDO10)
 O BEMVINDO10 só vale para quem nunca teve uma compra paga. Na hora de pagar, o servidor confere se o CPF,
 o e-mail (sem diferenciar maiúsculas, "+apelido" e pontos do Gmail) ou o celular já aparecem em algum pedido pago.
 Se aparecer, o cupom é removido e a pessoa vê o novo total antes de pagar.
-Para criar outros cupons, use a variável COUPONS na Netlify, por exemplo:
+Para criar outros cupons, use a variável COUPONS no Vercel, por exemplo:
 {"BEMVINDO10":{"type":"percent","value":10,"firstPurchaseOnly":true},"VOLTA15":{"type":"percent","value":15}}

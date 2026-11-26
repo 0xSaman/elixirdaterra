@@ -32,7 +32,7 @@ schemaType: ContactPage
     </div>
     <div class="track-card">
       <h2 class="h-sm" style="margin-bottom:16px">Envie uma mensagem</h2>
-      <form name="contato" method="POST" data-netlify="true" netlify-honeypot="empresa" data-netlify-ajax data-success="Mensagem enviada! Respondemos em breve.">
+      <form name="contato" method="POST" action="/api/form" data-ajax-form data-success="Mensagem enviada! Respondemos em breve.">
         <input type="hidden" name="form-name" value="contato">
         <p hidden><label>Não preencha: <input name="empresa"></label></p>
         <div class="field"><label for="c-nome">Nome</label><input id="c-nome" name="nome" required autocomplete="name" maxlength="100"></div>

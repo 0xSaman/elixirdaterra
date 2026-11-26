@@ -29,8 +29,8 @@
   }
   function logout() { token = null; try { sessionStorage.removeItem(KEY); } catch (e) {} $("#dash").hidden = true; $("#login").hidden = false; }
 
-  var leads = [];
-  function load(j) { orders = j.orders || []; leads = j.leads || []; stats(); table(); followups(); }
+  var leads = [], forms = [];
+  function load(j) { orders = j.orders || []; leads = j.leads || []; forms = j.forms || []; stats(); table(); followups(); formsList(); }
   function waLink(phone, text) {
     var d = String(phone || "").replace(/\D/g, ""); if (!d) return null;
     if (d.length <= 11) d = "55" + d;
@@ -66,7 +66,24 @@
         '<button class="btn btn--outline btn--sm" type="button" data-remind-done="' + esc(o.id) + '">Já lembrei</button></div></li>';
     }).join("") : '<li class="muted">Nenhum cliente para lembrar agora.</li>';
   }
+  function formsList() {
+    var box = $("#forms"); if (!box) return;
+    $('[data-s="forms"]').textContent = forms.length;
+    box.innerHTML = forms.length ? forms.map(function (f) {
+      var d = f.fields || {}, contato = f.form === "contato";
+      var who = contato ? (d.nome || d.email) : d.contato;
+      var mail = contato ? d.email : (/@/.test(d.contato || "") ? d.contato : "");
+      var wa = !contato && !mail ? waLink(d.contato, "Olá! Aqui é da Elixir da Terra 🌿 Seu cupom de 10% na primeira compra é BEMVINDO10: " + location.origin + "/extrato-de-curcuma/") : "";
+      var info = contato ? (d.pedido ? d.pedido + " · " : "") + d.mensagem : "Pediu o cupom de primeira compra";
+      return '<li><div><b>' + esc(who) + '</b><span class="muted" style="white-space:pre-wrap">' + esc(info) + " · " + date(f.createdAt) + "</span></div><div class=\"admin-list__act\">" +
+        (wa ? '<a class="btn btn--dark btn--sm" target="_blank" rel="noopener" href="' + esc(wa) + '">WhatsApp</a>' : "") +
+        (mail ? '<a class="btn btn--outline btn--sm" href="mailto:' + esc(mail) + '">E-mail</a>' : "") +
+        '<button class="btn btn--outline btn--sm" type="button" data-form-done="' + esc(f.key) + '">Concluir</button></div></li>';
+    }).join("") : '<li class="muted">Nenhuma mensagem nova.</li>';
+  }
   document.addEventListener("click", function (e) {
+    var fd = e.target.closest("[data-form-done]");
+    if (fd) { api("POST", { action: "form-done", key: fd.getAttribute("data-form-done") }).then(refresh); return; }
     var a = e.target.closest("[data-lead-done]");
     if (a) { api("POST", { action: "lead-done", key: a.getAttribute("data-lead-done") }).then(refresh); return; }
     var r = e.target.closest("[data-remind],[data-remind-done]");
