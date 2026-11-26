@@ -107,8 +107,9 @@ async function handler(req) {
     description: calc.lines.map((l) => `${l.qty}x ${l.name}`).join(", ").slice(0, 250),
     external_reference: orderId,
     statement_descriptor: (process.env.STATEMENT_DESCRIPTOR || "ELIXIRDATERRA").slice(0, 13),
-    // O Mercado Pago só aceita URL pública; em testes locais a notificação é omitida
-    notification_url: /localhost|127\.0\.0\.1/.test(site) ? undefined : `${site}/api/webhook`,
+    // O Mercado Pago só aceita URL pública; em testes locais a notificação é omitida.
+    // source_news=webhooks: só o formato novo (assinado), sem a cópia antiga "IPN" sem assinatura
+    notification_url: /localhost|127\.0\.0\.1/.test(site) ? undefined : `${site}/api/webhook?source_news=webhooks`,
     payer: { email: customer.email, first_name: firstName, last_name: lastName, identification: { type: "CPF", number: customer.cpf } },
     additional_info: {
       items: calc.lines.map((l) => ({ id: l.id, title: l.name, description: `${l.units} frasco(s) de 30 ml`, category_id: "health", quantity: l.qty, unit_price: l.unitPrice })),

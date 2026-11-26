@@ -1,7 +1,7 @@
 /* POST /api/webhook — notificações do Mercado Pago (evento "Pagamentos").
    Atualiza o pedido e dispara os e-mails de pagamento aprovado (uma única vez). */
 import { json, readJson, siteUrl } from "../server/http.mjs";
-import { mpFetch, isConfigured, verifySignature, orderStatusFromPayment } from "../server/mp.mjs";
+import { mpFetch, isConfigured, verifySignature, orderStatusFromPayment, env } from "../server/mp.mjs";
 import { getOrder, saveOrder, setStatus } from "../server/orders.mjs";
 import { sendPaidEmailsOnce } from "../server/email.mjs";
 import { tooMany } from "../server/security.mjs";
@@ -18,6 +18,12 @@ async function handler(req) {
   const dataId = q["data.id"] || q.id || body?.data?.id;
   if (type !== "payment" || !dataId) return json(200, { ok: true, ignored: type || "unknown" });
 
+  // Formato antigo (IPN: ?topic=payment&id=...) chega sem assinatura e sempre junto com o webhook
+  // assinado do mesmo pagamento. Responde OK sem processar, para o Mercado Pago não ficar reenviando.
+  if (env.webhookSecret() && !req.headers.get("x-signature")) {
+    console.log(`[webhook] cópia sem assinatura (IPN) ignorada: ${dataId}`);
+    return json(200, { ok: true, ignored: "unsigned" });
+  }
   if (!verifySignature(req, dataId).ok) {
     console.warn("[webhook] assinatura inválida", dataId);
     return json(401, { message: "assinatura inválida" });
