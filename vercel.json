@@ -35,14 +35,14 @@
       ]
     },
     {
-      "source": "/checkout/(.*)",
+      "source": "/checkout/:path*",
       "headers": [
         { "key": "X-Robots-Tag", "value": "noindex" },
         { "key": "Cache-Control", "value": "no-store" }
       ]
     },
     {
-      "source": "/painel/(.*)",
+      "source": "/painel/:path*",
       "headers": [
         { "key": "X-Robots-Tag", "value": "noindex, nofollow" },
         { "key": "Cache-Control", "value": "no-store" }

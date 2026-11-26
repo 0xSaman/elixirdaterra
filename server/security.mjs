@@ -19,8 +19,9 @@ export function originAllowed(req) {
   try {
     const host = new URL(origin).hostname;
     if (ALLOWED_HOSTS().has(host)) return true;
-    // Previews do Vercel deste projeto (ex.: elixirdaterra-git-branch-usuario.vercel.app)
-    return /^elixirdaterra(-[a-z0-9-]+)?\.vercel\.app$/.test(host);
+    // Mesma origem: a página e a API no mesmo endereço (cobre os previews do Vercel deste projeto).
+    // Não liberamos "elixirdaterra-*.vercel.app" em geral: qualquer pessoa pode criar um projeto com esse nome.
+    return host === new URL(req.url).hostname;
   } catch { return false; }
 }
 

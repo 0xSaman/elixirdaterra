@@ -108,7 +108,7 @@ Revise também:
   Sem o banco, a loja continua no ar, mas o pagamento real, a conta do
   cliente, o rastreio, o painel e os formulários respondem com erro.
 
-3.3 Migrar os dados que já estão no Vercel (pedidos, contas, carrinhos)
+3.3 Migrar os dados que já estão na Netlify (pedidos, contas, carrinhos)
   Faça isto UMA vez, logo antes de apontar o domínio para o Vercel:
   1. Netlify › Project configuration › General › copie o "Project ID".
   2. Netlify › User settings › Applications › Personal access tokens ›
@@ -123,7 +123,7 @@ Revise também:
   5. Os clientes continuam logados se você copiar também a variável
      SESSION_SECRET da Netlify para o Vercel (se ela existir lá). Se não
      existir, a chave das sessões é migrada junto com os dados.
-  Nada é apagado no Vercel. Se aparecerem pedidos novos no Vercel depois
+  Nada é apagado na Netlify. Se aparecerem pedidos novos na Netlify depois
   da migração, rode o comando de novo (ele sobrescreve com a versão atual).
 
 3.4 Domínio próprio (ex.: www.elixirdaterra.com.br)
@@ -134,7 +134,7 @@ Revise também:
      CNAME cname.vercel-dns.com, ou o valor exato indicado na tela).
      O HTTPS é ativado automaticamente.
   3. Cadastre SITE_URL = https://www.elixirdaterra.com.br e faça novo deploy.
-  4. Só depois que o domínio abrir pelo Vercel, desligue o site no Vercel.
+  4. Só depois que o domínio abrir pelo Vercel, desligue o site na Netlify.
 
 Variáveis de ambiente (senhas e chaves)
   Vercel › Project › Settings › Environment Variables › Add.
