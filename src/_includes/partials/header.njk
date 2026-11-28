@@ -13,7 +13,7 @@
     {%- else %}
     <button class="icon-btn menu-toggle" type="button" aria-label="Abrir menu" aria-controls="mobile-menu" aria-expanded="false" data-menu-open>{{ icon("menu", 24) }}</button>
     {%- endif %}
-    <a href="/" class="brand" aria-label="{{ site.name }} — página inicial"><img src="/assets/img/logo-horizontal-vinho.webp" alt="{{ site.name }}" width="257" height="96"></a>
+    <a href="/" class="brand" aria-label="{{ site.name }} — página inicial"><img src="/assets/img/logo-horizontal-{{ logo or 'vinho' }}.webp" alt="{{ site.name }}" width="257" height="96"></a>
     {%- if minimalChrome %}
     <div class="header-actions"><span class="badge badge--leaf">{{ icon("lock", 14, 2.4) }} Compra segura</span></div>
     {%- else %}
@@ -35,7 +35,7 @@
   <div class="mobile-menu__backdrop" data-menu-close></div>
   <div class="mobile-menu__panel" role="dialog" aria-modal="true" aria-label="Menu">
     <div class="mobile-menu__head">
-      <img src="/assets/img/logo-horizontal-vinho.webp" alt="{{ site.name }}" width="257" height="96" loading="lazy">
+      <img src="/assets/img/logo-horizontal-{{ logo or 'vinho' }}.webp" alt="{{ site.name }}" width="257" height="96" loading="lazy">
       <button class="icon-btn" type="button" aria-label="Fechar menu" data-menu-close>{{ icon("close", 22) }}</button>
     </div>
     <div class="mm-scroll">

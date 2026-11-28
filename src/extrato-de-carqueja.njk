@@ -1,0 +1,254 @@
+---
+layout: layouts/base.njk
+permalink: /extrato-de-carqueja/
+title: "Extrato de Carqueja Agroecológico 30 ml — em breve"
+description: "Conheça o Extrato de Carqueja Elixir da Terra: a erva amarga de caules alados, usada na tradição para a digestão e o fígado e, na Umbanda, para proteção e firmeza. Lançamento em breve."
+ogImage: /assets/img/carqueja-og.jpg
+bodyClass: "has-buybar theme-carqueja"
+logo: verde
+preload: ["/assets/img/carqueja-kit-1.webp"]
+styles: ["/assets/css/carqueja.css"]
+scripts: ["/assets/js/em-breve.js"]
+seoTitle: "Extrato de Carqueja 30 ml — em breve | Elixir da Terra"
+---
+{%- from "partials/icons.njk" import icon -%}
+{%- set c = carqueja -%}
+{%- set p = c.product -%}
+{%- set gallery = c.gallery -%}
+{%- macro refs(list) -%}<sup class="cq-ref">{% for n in list %}<a href="#fonte-{{ n }}" aria-label="Fonte {{ n }}">{{ n }}</a>{% if not loop.last %},{% endif %}{% endfor %}</sup>{%- endmacro -%}
+
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{% for item in c.faq %}{"@type":"Question","name":{{ item.q | json | safe }},"acceptedAnswer":{"@type":"Answer","text":{{ item.a | json | safe }}}}{% if not loop.last %},{% endif %}{% endfor %}]}
+</script>
+
+<div class="wrap">
+  <nav class="breadcrumbs" aria-label="Você está em"><ol><li><a href="/">Início</a></li><li aria-current="page">{{ p.shortName }}</li></ol></nav>
+
+  <div class="pdp">
+    <!-- Galeria -->
+    <div class="gallery" id="gallery">
+      <div class="gallery__main">
+        <img id="gallery-main" src="{{ gallery[0].src }}" alt="{{ gallery[0].alt }}" width="{{ gallery[0].w }}" height="{{ gallery[0].h }}" fetchpriority="high">
+        <span class="zoom-lens" id="zoom-lens" aria-hidden="true"></span>
+        <span class="cq-illus-tag">Ilustração</span>
+        <button class="gallery__zoom" type="button" id="open-lightbox" aria-label="Ampliar imagem">{{ icon("search", 20) }}</button>
+        <button class="gallery__nav gallery__nav--prev" type="button" aria-label="Imagem anterior" data-gal="-1">{{ icon("chev-left", 20) }}</button>
+        <button class="gallery__nav gallery__nav--next" type="button" aria-label="Próxima imagem" data-gal="1">{{ icon("chev-right", 20) }}</button>
+      </div>
+      <div class="gallery__thumbs" role="list" aria-label="Imagens do produto">
+        {%- for g in gallery %}
+        <button type="button" role="listitem" data-src="{{ g.src }}" data-alt="{{ g.alt }}" data-contain="false" aria-label="Ver imagem {{ loop.index }}" aria-current="{{ 'true' if loop.first else 'false' }}"><img src="{{ g.src }}" alt="" loading="lazy" width="68" height="68"></button>
+        {%- endfor %}
+      </div>
+    </div>
+
+    <!-- Lista de espera -->
+    <div class="buybox">
+      <div class="buybox__title">
+        <span class="buybox__brand">{{ p.brand }}</span>
+        <h1>{{ p.name }} <span class="buybox__size">{{ p.size }}</span></h1>
+        <p class="buybox__sub">{{ p.tagline }}</p>
+        <ul class="buybox__tags"><li>100% natural</li><li>Feito à mão</li><li>Planta nativa</li></ul>
+      </div>
+
+      <div class="buybox__price">
+        <div class="price-row">
+          <span class="badge badge--soon">{{ icon("clock", 14, 2.4) }} Em breve</span>
+          <span class="price">Lançamento em breve</span>
+        </div>
+        <span class="inst">Entre na lista de espera e seja avisado primeiro.</span>
+      </div>
+
+      <form id="wait-form" class="stack" method="POST" action="/api/form" novalidate>
+        <input type="hidden" name="form-name" value="lista-carqueja">
+        <p hidden><label>Não preencha: <input name="empresa" tabindex="-1" autocomplete="off"></label></p>
+        <fieldset style="border:0;margin:0;padding:0">
+          <legend class="fieldset-label">Qual kit te interessa?</legend>
+          <div class="variant-list" role="radiogroup">
+            {%- for k in c.kits %}
+            <label class="variant{% if loop.first %} is-selected{% endif %}" data-variant="{{ k.id }}">
+              <input type="radio" name="kit" value="{{ k.id }}" {% if loop.first %}checked{% endif %}>
+              <span class="dot" aria-hidden="true"></span>
+              <span class="variant__main">
+                <span class="variant__name">{{ k.name }}</span>
+                <span class="variant__desc">{{ k.desc }}</span>
+                {%- if k.free and catalog.settings.shipping.freeFromUnits %}<span class="variant__free">{{ icon("truck", 13) }} Frete grátis</span>{% endif %}
+              </span>
+              <span class="variant__price"><b class="cq-soon">Em breve</b></span>
+              {%- if k.badge %}<span class="variant__tag variant__tag--wine">{{ k.badge }}</span>{% endif %}
+            </label>
+            {%- endfor %}
+          </div>
+          <p class="variant-more">{{ icon("whatsapp", 15) }}<span>Quer reservar já?</span><a href="https://wa.me/{{ site.whatsapp }}?text={{ 'Olá! Tenho interesse no Extrato de Carqueja da Elixir da Terra. Pode me avisar quando lançar?' | urlencode }}" target="_blank" rel="noopener">Fale no WhatsApp</a></p>
+        </fieldset>
+
+        <div class="cq-wait">
+          <div class="field"><label for="w-nome">Seu nome <span class="muted">(opcional)</span></label><input id="w-nome" name="nome" autocomplete="given-name" maxlength="80"></div>
+          <div class="field"><label for="w-contato">WhatsApp ou e-mail</label><input id="w-contato" name="contato" required autocomplete="email" inputmode="email" maxlength="120" placeholder="(48) 99999-9999 ou voce@email.com" aria-describedby="w-msg"><span class="field-msg" id="w-msg" aria-live="polite"></span></div>
+        </div>
+        <button class="btn btn--primary btn--block" type="submit" id="wait-btn">{{ icon("mail", 19) }} Avise-me quando chegar</button>
+        <p class="cq-wait__ok" id="wait-ok" hidden role="status">{{ icon("check", 18, 2.4) }} <span>Pronto! Você está na lista e será avisado assim que o Extrato de Carqueja chegar.</span></p>
+        <p class="field-hint">Usamos seu contato só para avisar do lançamento.</p>
+      </form>
+
+      <ul class="buybox__perks">
+        <li>{{ icon("truck", 18, 1.8) }} <span>{% if catalog.settings.shipping.freeFromUnits %}<b>Frete grátis</b> a partir de {{ catalog.settings.shipping.freeFromUnits }} frascos{% else %}Envio com rastreio{% endif %}</span></li>
+        <li>{{ icon("shield", 18, 1.8) }} <span><b>Pagamento seguro</b> Mercado Pago</span></li>
+        <li>{{ icon("return", 18, 1.8) }} <span><b>7 dias</b> para devolução</span></li>
+      </ul>
+
+      <div class="accordion">
+        <details open>
+          <summary>Descrição</summary>
+          <div class="acc-body">
+            <p>Nosso extrato será uma tintura de carqueja (<i>Baccharis crispa</i>, antes chamada <i>Baccharis trimera</i>), a erva de caules alados e sabor amargo que cresce firme em campos e solos pedregosos da América do Sul. Cada lote será preparado e envasado artesanalmente.</p>
+            <p>Amarga, resistente e cheia de história, a carqueja é usada há gerações na medicina popular brasileira para a digestão e o fígado. Nas tradições de matriz africana, é erva de limpeza, proteção e firmeza.</p>
+          </div>
+        </details>
+        <details>
+          <summary>Modo de uso</summary>
+          <div class="acc-body"><p>O modo de uso e a quantidade de gotas serão informados no rótulo e nesta página no lançamento. Agite antes de usar.</p></div>
+        </details>
+        <details>
+          <summary>Composição e informações</summary>
+          <div class="acc-body">
+            <dl>
+              <dt>Composição</dt><dd>{{ p.composition }}</dd>
+              <dt>Conteúdo</dt><dd>{{ p.size }}</dd>
+              <dt>Conservação</dt><dd>{{ p.storage }}</dd>
+              <dt>Fabricante</dt><dd>{{ site.legal.company }} · CNPJ {{ site.legal.cnpj }}</dd>
+            </dl>
+          </div>
+        </details>
+        <details>
+          <summary>Cuidados</summary>
+          <div class="acc-body">
+            {%- for line in c.care %}<p>{{ line }}</p>{% endfor %}
+            <p>Este produto não é um medicamento e não substitui orientação médica.{{ refs([1, 24]) }}</p>
+          </div>
+        </details>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Dimensão física -->
+<section class="section section--sand cq-body" id="no-corpo">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <span class="eyebrow">No corpo</span>
+        <h2 class="h-lg">O que a tradição e a ciência dizem</h2>
+        <p class="lead">A carqueja é uma das plantas medicinais brasileiras mais estudadas. Separamos o que é reconhecido, o que já foi visto em laboratório e o que é saber popular.</p>
+      </div>
+    </div>
+    <div class="cq-cards">
+      {%- for b in c.body %}
+      <article class="cq-card">
+        <span class="cq-card__ic">{{ icon(b.icon, 22, 1.9) }}</span>
+        <span class="cq-card__tag">{{ b.tag }}</span>
+        <h3 class="h-sm">{{ b.title }}</h3>
+        <p>{{ b.text }}{{ refs(b.refs) }}</p>
+      </article>
+      {%- endfor %}
+    </div>
+    <p class="cq-disclaimer">Estudos em laboratório e em animais apontam caminhos, mas não garantem o mesmo efeito em pessoas. O extrato não é medicamento e não trata doenças.</p>
+  </div>
+</section>
+
+<!-- Dimensão energética -->
+<section class="section cq-spirit" id="protecao-e-firmeza">
+  <div class="wrap cq-spirit__grid">
+    <div class="cq-spirit__copy">
+      <span class="eyebrow eyebrow--light">Na dimensão energética</span>
+      <h2 class="h-lg">A erva amarga que limpa, protege e firma</h2>
+      {%- for t in c.spirit.intro %}<p>{{ t }}{% if loop.first %}{{ refs([25, 10, 13]) }}{% else %}{{ refs([11, 12]) }}{% endif %}</p>{% endfor %}
+    </div>
+    <div class="cq-pillars">
+      {%- for pl in c.spirit.pillars %}
+      <div class="cq-pillar">
+        <span class="cq-pillar__n">{{ loop.index }}</span>
+        <h3>{{ pl.title }}</h3>
+        <p>{{ pl.text }}{{ refs(pl.refs) }}</p>
+      </div>
+      {%- endfor %}
+    </div>
+    <div class="cq-spirit__notes">
+      {%- for n in c.spirit.notes %}<p>{{ icon("leaf", 16, 2) }}<span>{{ n }}{% if loop.first %}{{ refs([15]) }}{% else %}{{ refs([12, 16, 17]) }}{% endif %}</span></p>{% endfor %}
+      <p class="cq-spirit__small">O extrato é feito para uso oral. Banhos e defumações são práticas da tradição, feitas com a erva e com orientação de quem conhece o fundamento.</p>
+    </div>
+  </div>
+</section>
+
+<!-- A planta -->
+<section class="section cq-plant" id="a-planta">
+  <div class="wrap cq-plant__grid">
+    <figure class="cq-plant__img">
+      <img src="/assets/img/carqueja-ramo.webp" alt="Ilustração botânica de um ramo de carqueja, com caules de três asas e flores amarelas nas pontas" width="1200" height="1200" loading="lazy">
+    </figure>
+    <div>
+      <span class="eyebrow">A planta</span>
+      <h2 class="h-lg">Carqueja, a erva dos caules alados</h2>
+      <dl class="cq-facts">
+        {%- for f in c.plant %}
+        <div><dt>{{ f.k }}</dt><dd>{{ f.v | safe }}{{ refs(f.refs) }}</dd></div>
+        {%- endfor %}
+      </dl>
+      <p class="cq-note">{{ icon("search", 16, 2) }}<span>Várias espécies de <i>Baccharis</i> são vendidas como "carqueja". Saber exatamente qual planta vai no frasco é parte do cuidado.{{ refs([26, 21]) }}</span></p>
+    </div>
+  </div>
+</section>
+
+<!-- Perguntas -->
+<section class="section faq-v3">
+  <div class="wrap wrap--narrow">
+    <div class="section-head section-head--center">
+      <div>
+        <span class="eyebrow">Dúvidas</span>
+        <h2 class="h-lg">Perguntas sobre a carqueja</h2>
+      </div>
+    </div>
+    <div class="faq-v3__list">
+      {%- for item in c.faq %}
+      <details class="faq-v3__item">
+        <summary><span>{{ item.q }}</span><i aria-hidden="true"></i></summary>
+        <div class="faq-v3__a">{{ item.a }}</div>
+      </details>
+      {%- endfor %}
+    </div>
+    <div class="faq-v3__foot">
+      <p>Não encontrou o que procurava?</p>
+      <div>
+        <a class="btn btn--wa btn--sm" href="https://wa.me/{{ site.whatsapp }}" target="_blank" rel="noopener">{{ icon("whatsapp", 16) }} Falar no WhatsApp</a>
+        <a class="link-arrow" href="#wait-form">Entrar na lista de espera {{ icon("arrow", 16) }}</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Fontes -->
+<section class="section section--tight cq-refs" id="fontes">
+  <div class="wrap wrap--narrow">
+    <details>
+      <summary><span class="h-sm">Fontes consultadas</span><span class="muted">{{ c.references | length }} referências</span></summary>
+      <ol>
+        {%- for r in c.references %}
+        <li id="fonte-{{ r.n }}" value="{{ r.n }}"><a href="{{ r.u }}" target="_blank" rel="noopener">{{ r.t }}</a> <span class="muted">— {{ r.s }}</span></li>
+        {%- endfor %}
+      </ol>
+    </details>
+  </div>
+</section>
+
+<div class="lightbox" id="lightbox" hidden role="dialog" aria-modal="true" aria-label="Imagens ampliadas">
+  <button class="lightbox__close" type="button" data-lb-close aria-label="Fechar">{{ icon("close", 26) }}</button>
+  <button class="lightbox__nav lightbox__nav--prev" type="button" data-lb="-1" aria-label="Imagem anterior">{{ icon("chev-left", 28) }}</button>
+  <figure class="lightbox__stage"><img id="lightbox-img" alt=""></figure>
+  <button class="lightbox__nav lightbox__nav--next" type="button" data-lb="1" aria-label="Próxima imagem">{{ icon("chev-right", 28) }}</button>
+  <p class="lightbox__count" id="lightbox-count"></p>
+</div>
+
+<div class="buybar" id="buybar" aria-hidden="true">
+  <div class="buybar__info"><b>{{ p.shortName }} · em breve</b><span>Entre na lista de espera</span></div>
+  <button class="btn btn--primary" type="button" id="buybar-btn" tabindex="-1">Avise-me</button>
+</div>

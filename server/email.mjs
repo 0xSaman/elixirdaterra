@@ -97,7 +97,9 @@ export async function sendPaidEmailsOnce(o, site) {
 /** Para a loja: mensagem do formulário de contato ou cadastro do cupom de primeira compra. */
 export function notifyMerchantForm(f, site) {
   const rows = Object.entries(f.fields || {}).map(([k, v]) => `<tr><td style="padding:4px 12px 4px 0;font-size:14px;color:#7a6e66;vertical-align:top">${esc(k)}</td><td style="padding:4px 0;font-size:14px;white-space:pre-wrap">${esc(v)}</td></tr>`).join("");
-  const title = f.form === "contato" ? "Nova mensagem pelo site" : "Novo cadastro: cupom de primeira compra";
+  const title = f.form === "contato" ? "Nova mensagem pelo site"
+    : f.form === "lista-carqueja" ? "Lista de espera: Extrato de Carqueja"
+    : "Novo cadastro: cupom de primeira compra";
   const email = f.fields && /@/.test(f.fields.email || f.fields.contato || "") ? (f.fields.email || f.fields.contato) : undefined;
   return send({ to: process.env.ORDER_EMAIL_TO, replyTo: email, subject: title, html: layout(title, `<table role="presentation">${rows}</table>${button(site + "/painel/", "Abrir painel")}`, site) });
 }

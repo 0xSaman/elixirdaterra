@@ -70,11 +70,17 @@
     var box = $("#forms"); if (!box) return;
     $('[data-s="forms"]').textContent = forms.length;
     box.innerHTML = forms.length ? forms.map(function (f) {
-      var d = f.fields || {}, contato = f.form === "contato";
-      var who = contato ? (d.nome || d.email) : d.contato;
+      var d = f.fields || {}, contato = f.form === "contato", lista = f.form === "lista-carqueja";
+      var who = contato ? (d.nome || d.email) : (lista && d.nome ? d.nome + " · " + d.contato : d.contato);
       var mail = contato ? d.email : (/@/.test(d.contato || "") ? d.contato : "");
-      var wa = !contato && !mail ? waLink(d.contato, "Olá! Aqui é da Elixir da Terra 🌿 Seu cupom de 10% na primeira compra é BEMVINDO10: " + location.origin + "/extrato-de-curcuma/") : "";
-      var info = contato ? (d.pedido ? d.pedido + " · " : "") + d.mensagem : "Pediu o cupom de primeira compra";
+      var kits = { individual: "Primeira Gota (1 frasco)", ritual: "Ritual da Terra (3 frascos)", familia: "Elixir da Família (6 frascos)" };
+      var waText = lista
+        ? "Olá" + (d.nome ? ", " + d.nome.split(" ")[0] : "") + "! Aqui é da Elixir da Terra 🌿 O Extrato de Carqueja chegou: " + location.origin + "/extrato-de-carqueja/"
+        : "Olá! Aqui é da Elixir da Terra 🌿 Seu cupom de 10% na primeira compra é BEMVINDO10: " + location.origin + "/extrato-de-curcuma/";
+      var wa = !contato && !mail ? waLink(d.contato, waText) : "";
+      var info = contato ? (d.pedido ? d.pedido + " · " : "") + d.mensagem
+        : lista ? "Lista de espera da Carqueja" + (kits[d.kit] ? " · " + kits[d.kit] : "")
+        : "Pediu o cupom de primeira compra";
       return '<li><div><b>' + esc(who) + '</b><span class="muted" style="white-space:pre-wrap">' + esc(info) + " · " + date(f.createdAt) + "</span></div><div class=\"admin-list__act\">" +
         (wa ? '<a class="btn btn--dark btn--sm" target="_blank" rel="noopener" href="' + esc(wa) + '">WhatsApp</a>' : "") +
         (mail ? '<a class="btn btn--outline btn--sm" href="mailto:' + esc(mail) + '">E-mail</a>' : "") +
