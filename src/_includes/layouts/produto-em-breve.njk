@@ -1,25 +1,20 @@
 ---
 layout: layouts/base.njk
-permalink: /extrato-de-carqueja/
-title: "Extrato de Carqueja Agroecológico 30 ml — em breve"
-description: "Conheça o Extrato de Carqueja Elixir da Terra: a erva amarga de caules alados, usada na tradição para a digestão e o fígado e, na Umbanda, para proteção e firmeza. Lançamento em breve."
-ogImage: /assets/img/carqueja-og.jpg
-bodyClass: "has-buybar theme-carqueja"
-logo: verde
-preload: ["/assets/img/carqueja-kit-1.webp"]
-styles: ["/assets/css/carqueja.css"]
-scripts: ["/assets/js/em-breve.js"]
-seoTitle: "Extrato de Carqueja 30 ml — em breve | Elixir da Terra"
 ---
+{#- Molde de página de produto "em breve" (lista de espera).
+    Uso: crie src/produtos/<slug>.njk com "layout: layouts/produto-em-breve.njk" e "produto: <slug>",
+    e o conteúdo em src/_data/produtos/<slug>.js. Seções opcionais aparecem só se existirem no arquivo de dados. -#}
 {%- from "partials/icons.njk" import icon -%}
-{%- set c = carqueja -%}
-{%- set p = c.product -%}
-{%- set gallery = c.gallery -%}
-{%- macro refs(list) -%}<sup class="cq-ref">{% for n in list %}<a href="#fonte-{{ n }}" aria-label="Fonte {{ n }}">{{ n }}</a>{% if not loop.last %},{% endif %}{% endfor %}</sup>{%- endmacro -%}
+{%- set d = produtos[produto] -%}
+{%- set p = d.product -%}
+{%- set gallery = d.gallery -%}
+{%- macro refs(list) -%}{% if list and list.length %}<sup class="pe-ref">{% for n in list %}<a href="#fonte-{{ n }}" aria-label="Fonte {{ n }}">{{ n }}</a>{% if not loop.last %},{% endif %}{% endfor %}</sup>{% endif %}{%- endmacro -%}
 
+{%- if d.faq %}
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{% for item in c.faq %}{"@type":"Question","name":{{ item.q | json | safe }},"acceptedAnswer":{"@type":"Answer","text":{{ item.a | json | safe }}}}{% if not loop.last %},{% endif %}{% endfor %}]}
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{% for item in d.faq %}{"@type":"Question","name":{{ item.q | json | safe }},"acceptedAnswer":{"@type":"Answer","text":{{ item.a | json | safe }}}}{% if not loop.last %},{% endif %}{% endfor %}]}
 </script>
+{%- endif %}
 
 <div class="wrap">
   <nav class="breadcrumbs" aria-label="Você está em"><ol><li><a href="/">Início</a></li><li aria-current="page">{{ p.shortName }}</li></ol></nav>
@@ -30,14 +25,14 @@ seoTitle: "Extrato de Carqueja 30 ml — em breve | Elixir da Terra"
       <div class="gallery__main">
         <img id="gallery-main" src="{{ gallery[0].src }}" alt="{{ gallery[0].alt }}" width="{{ gallery[0].w }}" height="{{ gallery[0].h }}" fetchpriority="high">
         <span class="zoom-lens" id="zoom-lens" aria-hidden="true"></span>
-        <span class="cq-illus-tag">Ilustração</span>
+        {%- if d.illustrations !== false %}<span class="pe-illus-tag">Ilustração</span>{% endif %}
         <button class="gallery__zoom" type="button" id="open-lightbox" aria-label="Ampliar imagem">{{ icon("search", 20) }}</button>
         <button class="gallery__nav gallery__nav--prev" type="button" aria-label="Imagem anterior" data-gal="-1">{{ icon("chev-left", 20) }}</button>
         <button class="gallery__nav gallery__nav--next" type="button" aria-label="Próxima imagem" data-gal="1">{{ icon("chev-right", 20) }}</button>
       </div>
       <div class="gallery__thumbs" role="list" aria-label="Imagens do produto">
         {%- for g in gallery %}
-        <button type="button" role="listitem" data-src="{{ g.src }}" data-alt="{{ g.alt }}" data-contain="false" aria-label="Ver imagem {{ loop.index }}" aria-current="{{ 'true' if loop.first else 'false' }}"><img src="{{ g.src }}" alt="" loading="lazy" width="68" height="68"></button>
+        <button type="button" role="listitem" data-src="{{ g.src }}" data-alt="{{ g.alt }}" aria-label="Ver imagem {{ loop.index }}" aria-current="{{ 'true' if loop.first else 'false' }}"><img src="{{ g.src }}" alt="" loading="lazy" width="68" height="68"></button>
         {%- endfor %}
       </div>
     </div>
@@ -48,7 +43,7 @@ seoTitle: "Extrato de Carqueja 30 ml — em breve | Elixir da Terra"
         <span class="buybox__brand">{{ p.brand }}</span>
         <h1>{{ p.name }} <span class="buybox__size">{{ p.size }}</span></h1>
         <p class="buybox__sub">{{ p.tagline }}</p>
-        <ul class="buybox__tags"><li>100% natural</li><li>Feito à mão</li><li>Planta nativa</li></ul>
+        {%- if p.tags %}<ul class="buybox__tags">{% for t in p.tags %}<li>{{ t }}</li>{% endfor %}</ul>{% endif %}
       </div>
 
       <div class="buybox__price">
@@ -59,14 +54,16 @@ seoTitle: "Extrato de Carqueja 30 ml — em breve | Elixir da Terra"
         <span class="inst">Entre na lista de espera e seja avisado primeiro.</span>
       </div>
 
-      <form id="wait-form" class="stack" method="POST" action="/api/form" novalidate>
-        <input type="hidden" name="form-name" value="lista-carqueja">
+      <form id="wait-form" class="stack" method="POST" action="/api/form" data-nome="{{ p.shortName }}" novalidate>
+        <input type="hidden" name="form-name" value="lista-espera">
+        <input type="hidden" name="produto" value="{{ d.slug }}">
         <p hidden><label>Não preencha: <input name="empresa" tabindex="-1" autocomplete="off"></label></p>
+        {%- if d.kits %}
         <fieldset style="border:0;margin:0;padding:0">
           <legend class="fieldset-label">Qual kit te interessa?</legend>
           <div class="variant-list" role="radiogroup">
-            {%- for k in c.kits %}
-            <label class="variant{% if loop.first %} is-selected{% endif %}" data-variant="{{ k.id }}">
+            {%- for k in d.kits %}
+            <label class="variant{% if loop.first %} is-selected{% endif %}" data-variant="{{ k.id }}"{% if k.image is defined %} data-image="{{ k.image }}"{% endif %}>
               <input type="radio" name="kit" value="{{ k.id }}" {% if loop.first %}checked{% endif %}>
               <span class="dot" aria-hidden="true"></span>
               <span class="variant__main">
@@ -74,20 +71,23 @@ seoTitle: "Extrato de Carqueja 30 ml — em breve | Elixir da Terra"
                 <span class="variant__desc">{{ k.desc }}</span>
                 {%- if k.free and catalog.settings.shipping.freeFromUnits %}<span class="variant__free">{{ icon("truck", 13) }} Frete grátis</span>{% endif %}
               </span>
-              <span class="variant__price"><b class="cq-soon">Em breve</b></span>
+              <span class="variant__price"><b class="pe-soon">Em breve</b></span>
               {%- if k.badge %}<span class="variant__tag variant__tag--wine">{{ k.badge }}</span>{% endif %}
             </label>
             {%- endfor %}
           </div>
-          <p class="variant-more">{{ icon("whatsapp", 15) }}<span>Quer reservar já?</span><a href="https://wa.me/{{ site.whatsapp }}?text={{ 'Olá! Tenho interesse no Extrato de Carqueja da Elixir da Terra. Pode me avisar quando lançar?' | urlencode }}" target="_blank" rel="noopener">Fale no WhatsApp</a></p>
+          {%- if p.whatsappText %}
+          <p class="variant-more">{{ icon("whatsapp", 15) }}<span>Quer reservar já?</span><a href="https://wa.me/{{ site.whatsapp }}?text={{ p.whatsappText | urlencode }}" target="_blank" rel="noopener">Fale no WhatsApp</a></p>
+          {%- endif %}
         </fieldset>
+        {%- endif %}
 
-        <div class="cq-wait">
+        <div class="pe-wait">
           <div class="field"><label for="w-nome">Seu nome <span class="muted">(opcional)</span></label><input id="w-nome" name="nome" autocomplete="given-name" maxlength="80"></div>
           <div class="field"><label for="w-contato">WhatsApp ou e-mail</label><input id="w-contato" name="contato" required autocomplete="email" inputmode="email" maxlength="120" placeholder="(48) 99999-9999 ou voce@email.com" aria-describedby="w-msg"><span class="field-msg" id="w-msg" aria-live="polite"></span></div>
         </div>
         <button class="btn btn--primary btn--block" type="submit" id="wait-btn">{{ icon("mail", 19) }} Avise-me quando chegar</button>
-        <p class="cq-wait__ok" id="wait-ok" hidden role="status">{{ icon("check", 18, 2.4) }} <span>Pronto! Você está na lista e será avisado assim que o Extrato de Carqueja chegar.</span></p>
+        <p class="pe-wait__ok" id="wait-ok" hidden role="status">{{ icon("check", 18, 2.4) }} <span>Pronto! Você está na lista e será avisado assim que o {{ p.shortName }} chegar.</span></p>
         <p class="field-hint">Usamos seu contato só para avisar do lançamento.</p>
       </form>
 
@@ -100,116 +100,128 @@ seoTitle: "Extrato de Carqueja 30 ml — em breve | Elixir da Terra"
       <div class="accordion">
         <details open>
           <summary>Descrição</summary>
-          <div class="acc-body">
-            <p>Nosso extrato será uma tintura de carqueja (<i>Baccharis crispa</i>, antes chamada <i>Baccharis trimera</i>), a erva de caules alados e sabor amargo que cresce firme em campos e solos pedregosos da América do Sul. Cada lote será preparado e envasado artesanalmente.</p>
-            <p>Amarga, resistente e cheia de história, a carqueja é usada há gerações na medicina popular brasileira para a digestão e o fígado. Nas tradições de matriz africana, é erva de limpeza, proteção e firmeza.</p>
-          </div>
+          <div class="acc-body">{% for t in p.description %}<p>{{ t | safe }}</p>{% endfor %}</div>
         </details>
+        {%- if p.usage %}
         <details>
           <summary>Modo de uso</summary>
-          <div class="acc-body"><p>O modo de uso e a quantidade de gotas serão informados no rótulo e nesta página no lançamento. Agite antes de usar.</p></div>
+          <div class="acc-body"><p>{{ p.usage }}</p></div>
         </details>
+        {%- endif %}
         <details>
           <summary>Composição e informações</summary>
           <div class="acc-body">
             <dl>
-              <dt>Composição</dt><dd>{{ p.composition }}</dd>
+              {%- if p.composition %}<dt>Composição</dt><dd>{{ p.composition }}</dd>{% endif %}
               <dt>Conteúdo</dt><dd>{{ p.size }}</dd>
-              <dt>Conservação</dt><dd>{{ p.storage }}</dd>
+              {%- if p.shelfLife %}<dt>Validade</dt><dd>{{ p.shelfLife }}</dd>{% endif %}
+              {%- if p.storage %}<dt>Conservação</dt><dd>{{ p.storage }}</dd>{% endif %}
+              {%- if p.regulatory %}<dt>Registro</dt><dd>{{ p.regulatory }}</dd>{% endif %}
               <dt>Fabricante</dt><dd>{{ site.legal.company }} · CNPJ {{ site.legal.cnpj }}</dd>
             </dl>
           </div>
         </details>
+        {%- if d.care %}
         <details>
           <summary>Cuidados</summary>
           <div class="acc-body">
-            {%- for line in c.care %}<p>{{ line }}</p>{% endfor %}
-            <p>Este produto não é um medicamento e não substitui orientação médica.{{ refs([1, 24]) }}</p>
+            {%- for line in d.care %}<p>{{ line }}</p>{% endfor %}
+            <p>Este produto não é um medicamento e não substitui orientação médica.{{ refs(d.careRefs) }}</p>
           </div>
         </details>
+        {%- endif %}
       </div>
     </div>
   </div>
 </div>
 
-<!-- Dimensão física -->
-<section class="section section--sand cq-body" id="no-corpo">
+{%- if d.body %}
+<!-- No corpo -->
+<section class="section section--sand pe-body" id="no-corpo">
   <div class="wrap">
     <div class="section-head">
       <div>
-        <span class="eyebrow">No corpo</span>
-        <h2 class="h-lg">O que a tradição e a ciência dizem</h2>
-        <p class="lead">A carqueja é uma das plantas medicinais brasileiras mais estudadas. Separamos o que é reconhecido, o que já foi visto em laboratório e o que é saber popular.</p>
+        <span class="eyebrow">{{ d.body.eyebrow }}</span>
+        <h2 class="h-lg">{{ d.body.title }}</h2>
+        {%- if d.body.lead %}<p class="lead">{{ d.body.lead }}</p>{% endif %}
       </div>
     </div>
-    <div class="cq-cards">
-      {%- for b in c.body %}
-      <article class="cq-card">
-        <span class="cq-card__ic">{{ icon(b.icon, 22, 1.9) }}</span>
-        <span class="cq-card__tag">{{ b.tag }}</span>
+    <div class="pe-cards">
+      {%- for b in d.body.cards %}
+      <article class="pe-card">
+        <span class="pe-card__ic">{{ icon(b.icon, 22, 1.9) }}</span>
+        <span class="pe-card__tag">{{ b.tag }}</span>
         <h3 class="h-sm">{{ b.title }}</h3>
         <p>{{ b.text }}{{ refs(b.refs) }}</p>
       </article>
       {%- endfor %}
     </div>
-    <p class="cq-disclaimer">Estudos em laboratório e em animais apontam caminhos, mas não garantem o mesmo efeito em pessoas. O extrato não é medicamento e não trata doenças.</p>
+    {%- if d.body.disclaimer %}<p class="pe-disclaimer">{{ d.body.disclaimer }}</p>{% endif %}
   </div>
 </section>
+{%- endif %}
 
+{%- if d.spirit %}
 <!-- Dimensão energética -->
-<section class="section cq-spirit" id="protecao-e-firmeza">
-  <div class="wrap cq-spirit__grid">
-    <div class="cq-spirit__copy">
-      <span class="eyebrow eyebrow--light">Na dimensão energética</span>
-      <h2 class="h-lg">A erva amarga que limpa, protege e firma</h2>
-      {%- for t in c.spirit.intro %}<p>{{ t }}{% if loop.first %}{{ refs([25, 10, 13]) }}{% else %}{{ refs([11, 12]) }}{% endif %}</p>{% endfor %}
+<section class="section pe-spirit" id="dimensao-energetica">
+  <div class="wrap pe-spirit__grid">
+    <div class="pe-spirit__copy">
+      <span class="eyebrow">{{ d.spirit.eyebrow }}</span>
+      <h2 class="h-lg">{{ d.spirit.title }}</h2>
+      {%- for t in d.spirit.intro %}<p>{{ t.t }}{{ refs(t.refs) }}</p>{% endfor %}
     </div>
-    <div class="cq-pillars">
-      {%- for pl in c.spirit.pillars %}
-      <div class="cq-pillar">
-        <span class="cq-pillar__n">{{ loop.index }}</span>
+    <div class="pe-pillars">
+      {%- for pl in d.spirit.pillars %}
+      <div class="pe-pillar">
+        <span class="pe-pillar__n">{{ loop.index }}</span>
         <h3>{{ pl.title }}</h3>
         <p>{{ pl.text }}{{ refs(pl.refs) }}</p>
       </div>
       {%- endfor %}
     </div>
-    <div class="cq-spirit__notes">
-      {%- for n in c.spirit.notes %}<p>{{ icon("leaf", 16, 2) }}<span>{{ n }}{% if loop.first %}{{ refs([15]) }}{% else %}{{ refs([12, 16, 17]) }}{% endif %}</span></p>{% endfor %}
-      <p class="cq-spirit__small">O extrato é feito para uso oral. Banhos e defumações são práticas da tradição, feitas com a erva e com orientação de quem conhece o fundamento.</p>
+    {%- if d.spirit.notes or d.spirit.small %}
+    <div class="pe-spirit__notes">
+      {%- for n in d.spirit.notes %}<p>{{ icon("leaf", 16, 2) }}<span>{{ n.t }}{{ refs(n.refs) }}</span></p>{% endfor %}
+      {%- if d.spirit.small %}<p class="pe-spirit__small">{{ d.spirit.small }}</p>{% endif %}
     </div>
+    {%- endif %}
   </div>
 </section>
+{%- endif %}
 
+{%- if d.plant %}
 <!-- A planta -->
-<section class="section cq-plant" id="a-planta">
-  <div class="wrap cq-plant__grid">
-    <figure class="cq-plant__img">
-      <img src="/assets/img/carqueja-ramo.webp" alt="Ilustração botânica de um ramo de carqueja, com caules de três asas e flores amarelas nas pontas" width="1200" height="1200" loading="lazy">
+<section class="section pe-plant" id="a-planta">
+  <div class="wrap pe-plant__grid">
+    <figure class="pe-plant__img">
+      <img src="{{ d.plant.image.src }}" alt="{{ d.plant.image.alt }}" width="{{ d.plant.image.w }}" height="{{ d.plant.image.h }}" loading="lazy">
     </figure>
     <div>
-      <span class="eyebrow">A planta</span>
-      <h2 class="h-lg">Carqueja, a erva dos caules alados</h2>
-      <dl class="cq-facts">
-        {%- for f in c.plant %}
+      <span class="eyebrow">{{ d.plant.eyebrow }}</span>
+      <h2 class="h-lg">{{ d.plant.title }}</h2>
+      <dl class="pe-facts">
+        {%- for f in d.plant.facts %}
         <div><dt>{{ f.k }}</dt><dd>{{ f.v | safe }}{{ refs(f.refs) }}</dd></div>
         {%- endfor %}
       </dl>
-      <p class="cq-note">{{ icon("search", 16, 2) }}<span>Várias espécies de <i>Baccharis</i> são vendidas como "carqueja". Saber exatamente qual planta vai no frasco é parte do cuidado.{{ refs([26, 21]) }}</span></p>
+      {%- if d.plant.note %}<p class="pe-note">{{ icon("search", 16, 2) }}<span>{{ d.plant.note.t | safe }}{{ refs(d.plant.note.refs) }}</span></p>{% endif %}
     </div>
   </div>
 </section>
+{%- endif %}
 
+{%- if d.faq %}
 <!-- Perguntas -->
 <section class="section faq-v3">
   <div class="wrap wrap--narrow">
     <div class="section-head section-head--center">
       <div>
         <span class="eyebrow">Dúvidas</span>
-        <h2 class="h-lg">Perguntas sobre a carqueja</h2>
+        <h2 class="h-lg">{{ d.faqTitle or "Perguntas frequentes" }}</h2>
       </div>
     </div>
     <div class="faq-v3__list">
-      {%- for item in c.faq %}
+      {%- for item in d.faq %}
       <details class="faq-v3__item">
         <summary><span>{{ item.q }}</span><i aria-hidden="true"></i></summary>
         <div class="faq-v3__a">{{ item.a }}</div>
@@ -225,20 +237,23 @@ seoTitle: "Extrato de Carqueja 30 ml — em breve | Elixir da Terra"
     </div>
   </div>
 </section>
+{%- endif %}
 
+{%- if d.references %}
 <!-- Fontes -->
-<section class="section section--tight cq-refs" id="fontes">
+<section class="section section--tight pe-refs" id="fontes">
   <div class="wrap wrap--narrow">
     <details>
-      <summary><span class="h-sm">Fontes consultadas</span><span class="muted">{{ c.references | length }} referências</span></summary>
+      <summary><span class="h-sm">Fontes consultadas</span><span class="muted">{{ d.references | length }} referências</span></summary>
       <ol>
-        {%- for r in c.references %}
+        {%- for r in d.references %}
         <li id="fonte-{{ r.n }}" value="{{ r.n }}"><a href="{{ r.u }}" target="_blank" rel="noopener">{{ r.t }}</a> <span class="muted">— {{ r.s }}</span></li>
         {%- endfor %}
       </ol>
     </details>
   </div>
 </section>
+{%- endif %}
 
 <div class="lightbox" id="lightbox" hidden role="dialog" aria-modal="true" aria-label="Imagens ampliadas">
   <button class="lightbox__close" type="button" data-lb-close aria-label="Fechar">{{ icon("close", 26) }}</button>

@@ -1,5 +1,5 @@
-/* Página de produto "em breve" (Extrato de Carqueja): galeria, lightbox, escolha do kit,
-   lista de espera (POST /api/form, form-name "lista-carqueja") e barra fixa no celular */
+/* Páginas de produto "em breve" (molde layouts/produto-em-breve.njk): galeria, lightbox,
+   escolha do kit, lista de espera (POST /api/form, form-name "lista-espera" + produto) e barra fixa no celular */
 (function () {
   "use strict";
   var $ = function (s, r) { return (r || document).querySelector(s); };
@@ -67,16 +67,19 @@
   }
 
   /* ---------- kit de interesse ---------- */
-  var kitImg = { individual: 0, ritual: 2, familia: 3 };
   $$('input[name="kit"]').forEach(function (r) {
     r.addEventListener("change", function () {
-      $$(".variant").forEach(function (el) { el.classList.toggle("is-selected", el.getAttribute("data-variant") === r.value); });
-      if (kitImg[r.value] !== undefined) show(kitImg[r.value]);
+      $$(".variant").forEach(function (el) {
+        var on = el.getAttribute("data-variant") === r.value;
+        el.classList.toggle("is-selected", on);
+        if (on && el.hasAttribute("data-image")) show(parseInt(el.getAttribute("data-image"), 10));
+      });
     });
   });
 
   /* ---------- lista de espera ---------- */
   var form = $("#wait-form"), contato = $("#w-contato"), msg = $("#w-msg"), btn = $("#wait-btn"), ok = $("#wait-ok");
+  var slug = form ? form.elements.produto.value : "", KEY = "edt_lista_" + slug;
   function validContact(v) { return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v) || v.replace(/\D/g, "").length >= 10; }
   if (form) {
     contato.addEventListener("input", function () { msg.textContent = ""; contato.removeAttribute("aria-invalid"); });
@@ -92,9 +95,9 @@
         .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { if (!r.ok) throw j; return j; }); })
         .then(function () {
           ok.hidden = false; btn.hidden = true;
-          $$(".cq-wait input", form).forEach(function (i) { i.disabled = true; });
-          try { localStorage.setItem("edt_lista_carqueja", "1"); } catch (err) {}
-          if (E.track) E.track("generate_lead", { lead_source: "lista-carqueja" });
+          $$(".pe-wait input", form).forEach(function (i) { i.disabled = true; });
+          try { localStorage.setItem(KEY, "1"); } catch (err) {}
+          if (E.track) E.track("generate_lead", { lead_source: "lista-espera", item_id: slug });
         })
         .catch(function (j) {
           btn.disabled = false;
@@ -102,7 +105,7 @@
           if (E.toast) E.toast(text); else msg.textContent = text;
         });
     });
-    try { if (localStorage.getItem("edt_lista_carqueja")) { ok.hidden = false; ok.querySelector("span").textContent = "Você já está na lista. Avisaremos assim que o Extrato de Carqueja chegar."; } } catch (err) {}
+    try { if (localStorage.getItem(KEY)) { ok.hidden = false; ok.querySelector("span").textContent = "Você já está na lista. Avisaremos assim que o " + (form.getAttribute("data-nome") || "produto") + " chegar."; } } catch (err) {}
   }
 
   /* ---------- barra fixa no celular ---------- */

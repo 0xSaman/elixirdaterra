@@ -1,11 +1,15 @@
 /* =============================================================
-   EXTRATO DE CARQUEJA — conteúdo da página (lançamento em breve)
-   Textos baseados nas fontes listadas em "references".
+   PRODUTO: EXTRATO DE CARQUEJA (lançamento em breve)
+   Página: /carqueja/  ·  arquivo da página: src/produtos/carqueja.njk
+   Imagens: src/assets/img/produtos/carqueja/  ·  cores: src/assets/css/produtos/carqueja.css
+   Textos baseados nas fontes listadas em "references" (os números entre colchetes).
    Ao lançar: confirme composição, modo de uso, validade e registro,
    defina preços em shared/catalog.js e troque as ilustrações por fotos.
    ============================================================= */
 
 export default {
+  slug: "carqueja",
+
   product: {
     name: "Extrato de Carqueja Agroecológico",
     shortName: "Extrato de Carqueja",
@@ -13,27 +17,39 @@ export default {
     brand: "Elixir da Terra",
     tagline: "Tintura artesanal de carqueja: a erva amarga que cuida por dentro e firma por fora.",
     composition: "Tintura das partes aéreas (caules alados) de carqueja em solução hidroalcoólica.",
-    storage: "Conservar em local seco, arejado e protegido da luz."
+    storage: "Conservar em local seco, arejado e protegido da luz.",
+    tags: ["100% natural", "Feito à mão", "Planta nativa"],
+    description: [
+      "Nosso extrato será uma tintura de carqueja (<i>Baccharis crispa</i>, antes chamada <i>Baccharis trimera</i>), a erva de caules alados e sabor amargo que cresce firme em campos e solos pedregosos da América do Sul. Cada lote será preparado e envasado artesanalmente.",
+      "Amarga, resistente e cheia de história, a carqueja é usada há gerações na medicina popular brasileira para a digestão e o fígado. Nas tradições de matriz africana, é erva de limpeza, proteção e firmeza."
+    ],
+    usage: "O modo de uso e a quantidade de gotas serão informados no rótulo e nesta página no lançamento. Agite antes de usar.",
+    whatsappText: "Olá! Tenho interesse no Extrato de Carqueja da Elixir da Terra. Pode me avisar quando lançar?"
   },
 
-  // Mesmos kits da Cúrcuma; preços entram no lançamento
+  // Mesmos kits da Cúrcuma; preços entram no lançamento. "image" = posição da foto na galeria (começa em 0)
   kits: [
-    { id: "individual", name: "Primeira Gota", desc: "1 frasco" },
-    { id: "ritual", name: "Ritual da Terra", desc: "3 frascos", badge: "Recomendado" },
-    { id: "familia", name: "Elixir da Família", desc: "6 frascos", free: true }
+    { id: "individual", name: "Primeira Gota", desc: "1 frasco", image: 0 },
+    { id: "ritual", name: "Ritual da Terra", desc: "3 frascos", badge: "Recomendado", image: 2 },
+    { id: "familia", name: "Elixir da Família", desc: "6 frascos", free: true, image: 3 }
   ],
 
   gallery: [
-    { src: "/assets/img/carqueja-kit-1.webp", alt: "Ilustração do frasco e da caixa do Extrato de Carqueja Elixir da Terra", w: 1200, h: 1200 },
-    { src: "/assets/img/carqueja-frasco.webp", alt: "Ilustração do frasco de 30 ml do Extrato de Carqueja entre ramos floridos", w: 1200, h: 1200 },
-    { src: "/assets/img/carqueja-kit-3.webp", alt: "Ilustração do kit Ritual da Terra com 3 frascos de Extrato de Carqueja", w: 1200, h: 1200 },
-    { src: "/assets/img/carqueja-kit-6.webp", alt: "Ilustração do kit Elixir da Família com 6 frascos de Extrato de Carqueja", w: 1200, h: 1200 },
-    { src: "/assets/img/carqueja-ramo.webp", alt: "Ilustração botânica de um ramo de carqueja com caules alados e flores amarelas", w: 1200, h: 1200 },
-    { src: "/assets/img/carqueja-flores.webp", alt: "Detalhe ilustrado dos caules alados e das flores amarelas da carqueja", w: 1200, h: 1200 }
+    { src: "/assets/img/produtos/carqueja/kit-1.webp", alt: "Ilustração do frasco e da caixa do Extrato de Carqueja Elixir da Terra", w: 1200, h: 1200 },
+    { src: "/assets/img/produtos/carqueja/frasco.webp", alt: "Ilustração do frasco de 30 ml do Extrato de Carqueja entre ramos floridos", w: 1200, h: 1200 },
+    { src: "/assets/img/produtos/carqueja/kit-3.webp", alt: "Ilustração do kit Ritual da Terra com 3 frascos de Extrato de Carqueja", w: 1200, h: 1200 },
+    { src: "/assets/img/produtos/carqueja/kit-6.webp", alt: "Ilustração do kit Elixir da Família com 6 frascos de Extrato de Carqueja", w: 1200, h: 1200 },
+    { src: "/assets/img/produtos/carqueja/ramo.webp", alt: "Ilustração botânica de um ramo de carqueja com caules alados e flores amarelas", w: 1200, h: 1200 },
+    { src: "/assets/img/produtos/carqueja/flores.webp", alt: "Detalhe ilustrado dos caules alados e das flores amarelas da carqueja", w: 1200, h: 1200 }
   ],
 
   // Dimensão física: o que a tradição e a ciência dizem (cada item aponta para as fontes)
-  body: [
+  body: {
+    eyebrow: "No corpo",
+    title: "O que a tradição e a ciência dizem",
+    lead: "A carqueja é uma das plantas medicinais brasileiras mais estudadas. Separamos o que é reconhecido, o que já foi visto em laboratório e o que é saber popular.",
+    disclaimer: "Estudos em laboratório e em animais apontam caminhos, mas não garantem o mesmo efeito em pessoas. O extrato não é medicamento e não trata doenças.",
+    cards: [
     { icon: "leaf", title: "Digestão", tag: "Farmacopeia Brasileira",
       text: "É o uso mais antigo da planta. O Formulário de Fitoterápicos da Anvisa descreve a tintura de carqueja como auxiliar no alívio dos sintomas de má digestão (dispepsia), e a tradição a usa como tônica, digestiva e estomacal.",
       refs: [1, 2] },
@@ -52,13 +68,16 @@ export default {
     { icon: "sun", title: "Usos populares", tag: "Tradição",
       text: "Diurética, \"para emagrecer\" e para o colesterol são usos populares muito citados, com estudos iniciais em animais. São caminhos de pesquisa, não promessas de resultado.",
       refs: [9, 5, 27] }
-  ],
+    ]
+  },
 
   // Dimensão energética: proteção e firmeza (tradições de matriz africana e espiritualidade popular)
   spirit: {
+    eyebrow: "Na dimensão energética",
+    title: "A erva amarga que limpa, protege e firma",
     intro: [
-      "Nas tradições de matriz africana, as folhas são sagradas: \"sem folha não há orixá\". Na Umbanda, várias casas colocam a carqueja entre as ervas de Ogum, o orixá dos caminhos e das batalhas, usadas no banho de descarrego.",
-      "Ela é chamada de \"amargura que limpa\": uma erva de purificação profunda, ligada ao descarrego e à quebra de magias. As ervas de Ogum entram em banhos, defumações, firmezas e oferendas."
+      { t: "Nas tradições de matriz africana, as folhas são sagradas: \"sem folha não há orixá\". Na Umbanda, várias casas colocam a carqueja entre as ervas de Ogum, o orixá dos caminhos e das batalhas, usadas no banho de descarrego.", refs: [25, 10, 13] },
+      { t: "Ela é chamada de \"amargura que limpa\": uma erva de purificação profunda, ligada ao descarrego e à quebra de magias. As ervas de Ogum entram em banhos, defumações, firmezas e oferendas.", refs: [11, 12] }
     ],
     pillars: [
       { title: "Limpeza", text: "Erva de descarrego: usada no banho para tirar o peso acumulado e renovar as forças.", refs: [10, 11] },
@@ -66,21 +85,29 @@ export default {
       { title: "Firmeza", text: "Cresce em terra seca e pedregosa, à beira das estradas. Uma planta que se mantém de pé onde poucas resistem.", refs: [14, 11] }
     ],
     notes: [
-      "Por ser caule e não folha tenra, a tradição ensina a prepará-la na água quente, abafada, e não macerada.",
-      "Cada casa tem seu fundamento: há quem a chame de erva quente, há quem a chame de morna, e há terreiros que não a usam em ritual. Siga a orientação da sua casa."
+      { t: "Por ser caule e não folha tenra, a tradição ensina a prepará-la na água quente, abafada, e não macerada.", refs: [15] },
+      { t: "Cada casa tem seu fundamento: há quem a chame de erva quente, há quem a chame de morna, e há terreiros que não a usam em ritual. Siga a orientação da sua casa.", refs: [12, 16, 17] }
     ],
+    small: "O extrato é feito para uso oral. Banhos e defumações são práticas da tradição, feitas com a erva e com orientação de quem conhece o fundamento."
   },
 
   // A planta
-  plant: [
+  plant: {
+    eyebrow: "A planta",
+    title: "Carqueja, a erva dos caules alados",
+    image: { src: "/assets/img/produtos/carqueja/ramo.webp", alt: "Ilustração botânica de um ramo de carqueja, com caules de três asas e flores amarelas nas pontas", w: 1200, h: 1200 },
+    note: { t: "Várias espécies de <i>Baccharis</i> são vendidas como \"carqueja\". Saber exatamente qual planta vai no frasco é parte do cuidado.", refs: [26, 21] },
+    facts: [
     { k: "Nome científico", v: "<i>Baccharis crispa</i> Spreng. (sinônimo de <i>Baccharis trimera</i>)", refs: [18, 19] },
     { k: "Família", v: "Asteraceae, a mesma das margaridas e da camomila", refs: [18] },
     { k: "Como reconhecer", v: "Caules quase sem folhas, com três asas verdes interrompidas ao longo do ramo", refs: [20] },
     { k: "Flores", v: "Pequenas e amarelas, reunidas em capítulos nas pontas dos ramos; há plantas masculinas e femininas", refs: [20, 21] },
     { k: "Onde e quando", v: "Nativa da América do Sul; floresce de outubro a março em campos do Pampa, Mata Atlântica, Cerrado e Caatinga", refs: [18] },
     { k: "No SUS", v: "Está na Relação Nacional de Plantas Medicinais de Interesse ao SUS (Renisus), e o SUS distribui fitoterápicos de carqueja", refs: [22, 23] }
-  ],
+    ]
+  },
 
+  careRefs: [1, 24],
   care: [
     "Contém álcool. Não use se tiver alergia a plantas da família das margaridas (Asteraceae).",
     "Não indicado para gestantes, lactantes, crianças, pessoas com diabetes ou com problemas com álcool.",
@@ -88,6 +115,7 @@ export default {
     "Suspenda o uso duas semanas antes de cirurgias e interrompa em caso de desconforto."
   ],
 
+  faqTitle: "Perguntas sobre a carqueja",
   faq: [
     { q: "O Extrato de Carqueja já está à venda?",
       a: "Ainda não. Estamos preparando o lançamento. Deixe seu WhatsApp ou e-mail no formulário desta página e avisamos você assim que chegar." },

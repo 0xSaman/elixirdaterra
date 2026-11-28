@@ -1,0 +1,38 @@
+/* =========================================================
+   Extrato de Carqueja — verde (folhas) e amarelo (flores)
+   Página /carqueja/ (body.tema-carqueja). Componentes em ../produto-em-breve.css
+   ========================================================= */
+.tema-carqueja{
+  --wine:#2f5f2b;
+  --wine-700:#1f4420;
+  --wine-50:#eef5e8;
+  --turmeric:#e5bd22;
+  --turmeric-600:#7a6000;
+  --turmeric-50:#fdf6d6;
+  --sand:#f3f6ea;
+  --sand-2:#e6ecd6;
+  --ink:#17211a;
+  --ink-2:#3b4a3e;
+  --muted:#5f6b5d;
+  --line:#e0e6d2;
+  --line-2:#cdd7bd;
+  --leaf:#3f6f2a;
+  --leaf-50:#edf5e3;
+  --gold:#a8890f;
+  --gold-2:#dcc455;
+  --gold-grad:linear-gradient(90deg,#4f7d2c,#b8960f 50%,#4f7d2c);
+  /* seção "dimensão energética" e detalhes */
+  --pe-escuro-1:#1c3f1d;
+  --pe-escuro-2:#2f5f2b;
+  --pe-escuro-3:#244a22;
+  --pe-brilho:rgba(229,189,34,.24);
+  --pe-destaque:#f3d75a;
+  --pe-icone:#f1dc7e;
+  --pe-borda-destaque:#efd77a;
+}
+.tema-carqueja .section--sand,.tema-carqueja .faq-v3{background-image:radial-gradient(rgba(95,130,50,.2) 1px,transparent 1.4px),radial-gradient(900px 380px at 50% 0%,rgba(240,220,120,.32),transparent 70%)}
+.tema-carqueja .variant.is-selected{background:#f6faf1}
+.tema-carqueja .btn--primary{box-shadow:0 8px 20px rgba(47,95,43,.24)}
+.tema-carqueja .btn--primary:hover{box-shadow:0 12px 26px rgba(47,95,43,.32)}
+.tema-carqueja .variant__tag{border-color:#efd77a}
+

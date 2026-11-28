@@ -1,0 +1,76 @@
+/* =========================================================
+   Páginas de produto "em breve" (molde layouts/produto-em-breve.njk)
+   Componentes comuns. As cores de cada produto ficam em
+   assets/css/produtos/<slug>.css, na classe .tema-<slug>.
+   ========================================================= */
+.badge--soon{background:var(--turmeric);color:#2b2300}
+.has-buybar .buybox__price .price{font-family:var(--display);font-weight:600;font-size:clamp(1.35rem,2.2vw,1.6rem)}
+/* ---------- caixa de lista de espera ---------- */
+.variant__price b.pe-soon{font-size:12px;font-weight:700}
+.pe-soon{display:inline-block;font-size:12.5px;font-weight:700;color:var(--turmeric-600);background:var(--turmeric-50);border:1px solid var(--pe-borda-destaque,#efd77a);padding:3px 10px;border-radius:999px;white-space:nowrap}
+.pe-wait{display:grid;gap:0 12px}
+.pe-wait .field{margin-bottom:10px}
+@media (min-width:520px){.pe-wait{grid-template-columns:1fr 1.45fr}}
+.pe-wait__ok{display:flex;gap:10px;align-items:flex-start;background:var(--leaf-50);color:var(--leaf);border-radius:12px;padding:12px 14px;font-weight:600;font-size:14.5px;line-height:1.45}
+.pe-wait__ok svg{flex:none;margin-top:1px}
+#wait-form .field-hint{margin-top:-2px}
+.pe-illus-tag{position:absolute;left:12px;top:12px;z-index:2;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:rgba(255,255,255,.86);color:var(--ink-2);padding:4px 10px;border-radius:999px;pointer-events:none}
+
+/* ---------- números das fontes ---------- */
+.pe-ref{font-size:.7em;margin-left:2px;line-height:0;white-space:nowrap}
+.pe-ref a{color:var(--leaf);text-decoration:none;font-weight:700;padding:0 1px}
+.pe-ref a:hover{text-decoration:underline}
+
+/* ---------- no corpo ---------- */
+.pe-cards{display:grid;gap:16px;grid-template-columns:repeat(auto-fill,minmax(min(100%,280px),1fr))}
+.pe-card{background:#fff;border:1px solid var(--line);border-radius:var(--r-lg);padding:24px;display:grid;gap:10px;align-content:start;box-shadow:var(--shadow-sm)}
+.pe-card__ic{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 30% 30%,var(--turmeric-50),var(--pe-icone,#f1dc7e));color:var(--wine)}
+.pe-card__tag{justify-self:start;font-size:11.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--leaf);background:var(--leaf-50);padding:3px 10px;border-radius:999px}
+.pe-card p{color:var(--ink-2);font-size:15px;line-height:1.6}
+.pe-disclaimer{margin-top:22px;font-size:13.5px;color:var(--muted);max-width:72ch}
+
+/* ---------- dimensão energética ---------- */
+.pe-spirit{background:radial-gradient(110% 70% at 90% 0%,var(--pe-brilho,rgba(229,189,34,.24)),transparent 60%),linear-gradient(160deg,var(--pe-escuro-1,#1f1813),var(--pe-escuro-2,#3a2e26) 62%,var(--pe-escuro-3,#2a211b));color:rgba(255,255,255,.86)}
+.pe-spirit .eyebrow{background:none;color:var(--pe-destaque,#f3d75a)}
+.pe-spirit h2{color:#fff}
+.pe-spirit__grid{display:grid;gap:clamp(28px,4vw,48px)}
+.pe-spirit__copy{display:grid;gap:16px;align-content:start}
+.pe-spirit__copy p{font-size:16.5px;line-height:1.7}
+.pe-pillars{display:grid;gap:14px;align-content:start}
+.pe-pillar{position:relative;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);border-radius:var(--r-lg);padding:20px 22px 20px 72px}
+.pe-pillar__n{position:absolute;left:20px;top:20px;width:36px;height:36px;border-radius:50%;background:var(--turmeric);color:#1f2a10;font-weight:700;display:grid;place-items:center;font-family:var(--display);font-size:18px}
+.pe-pillar h3{color:#fff;font-size:1.3rem;margin-bottom:4px}
+.pe-pillar p{font-size:15px;line-height:1.6}
+.pe-spirit .pe-ref a{color:var(--pe-destaque,#f3d75a)}
+.pe-spirit__notes{display:grid;gap:12px;border-top:1px solid rgba(255,255,255,.16);padding-top:24px}
+.pe-spirit__notes p{display:flex;gap:10px;align-items:flex-start;font-size:15px;line-height:1.6}
+.pe-spirit__notes svg{flex:none;color:var(--pe-destaque,#f3d75a);margin-top:4px}
+.pe-spirit__notes .pe-spirit__small{display:block;font-size:13.5px;color:rgba(255,255,255,.7)}
+@media (min-width:960px){
+  .pe-spirit__grid{grid-template-columns:1.1fr 1fr}
+  .pe-spirit__notes{grid-column:1/-1;grid-template-columns:1fr 1fr;column-gap:40px}
+  .pe-spirit__notes .pe-spirit__small{grid-column:1/-1}
+}
+
+/* ---------- a planta ---------- */
+.pe-plant__grid{display:grid;gap:clamp(28px,4vw,56px);align-items:center}
+.pe-plant__img{margin:0;border-radius:var(--r-lg);overflow:hidden;background:var(--sand);box-shadow:var(--shadow)}
+.pe-plant__img img{width:100%;height:auto}
+.pe-plant .h-lg{margin:10px 0 22px}
+.pe-facts{display:grid;margin:0;border-top:1px solid var(--line)}
+.pe-facts > div{display:grid;gap:4px;padding:14px 0;border-bottom:1px solid var(--line)}
+.pe-facts dt{font-weight:700;font-size:12.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--leaf)}
+.pe-facts dd{margin:0;color:var(--ink-2)}
+.pe-note{display:flex;gap:10px;align-items:flex-start;margin-top:18px;font-size:14px;color:var(--ink-2);background:var(--turmeric-50);border-radius:12px;padding:12px 14px}
+.pe-note svg{flex:none;margin-top:3px;color:var(--turmeric-600)}
+@media (min-width:560px){.pe-facts > div{grid-template-columns:170px 1fr;gap:16px}}
+@media (min-width:900px){.pe-plant__grid{grid-template-columns:.9fr 1.1fr}}
+
+/* ---------- fontes ---------- */
+.pe-refs details{border:1px solid var(--line);border-radius:var(--r-lg);padding:18px 22px;background:#fff}
+.pe-refs summary{display:flex;justify-content:space-between;align-items:center;gap:12px;cursor:pointer;list-style:none}
+.pe-refs summary::-webkit-details-marker{display:none}
+.pe-refs ol{margin:16px 0 0;padding-left:28px;display:grid;gap:8px;font-size:14px;line-height:1.5}
+.pe-refs a{color:var(--wine);text-underline-offset:3px;overflow-wrap:anywhere}
+.pe-refs li{scroll-margin-top:calc(var(--header-h) + 24px);border-radius:6px;transition:background .3s}
+.pe-refs li:target,.pe-refs li.is-flash{background:var(--turmeric-50)}

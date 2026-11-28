@@ -1,6 +1,6 @@
 /* POST /api/form — formulários do site (substitui o Netlify Forms).
    Formulários aceitos: "contato" (página Contato), "primeira-compra" (janela do cupom)
-   e "lista-carqueja" (lista de espera do Extrato de Carqueja).
+   e "lista-espera" (páginas de produto em breve; o campo "produto" traz o slug, ex.: carqueja).
    Guarda no banco (aparece no painel) e, se o Resend estiver configurado, envia por e-mail para ORDER_EMAIL_TO. */
 import { json, readJson, siteUrl, methodNotAllowed } from "../server/http.mjs";
 import { guard, clientIp } from "../server/security.mjs";
@@ -10,7 +10,7 @@ import { notifyMerchantForm } from "../server/email.mjs";
 const FORMS = {
   contato: ["nome", "email", "pedido", "mensagem"],
   "primeira-compra": ["contato"],
-  "lista-carqueja": ["nome", "contato", "kit"]
+  "lista-espera": ["produto", "nome", "contato", "kit"]
 };
 const KITS = ["individual", "ritual", "familia"];
 const clean = (v, n) => String(v ?? "").replace(/[<>]/g, "").replace(/\r\n?/g, "\n").trim().slice(0, n);
@@ -37,7 +37,10 @@ async function handler(req) {
   if (name === "contato") {
     if (!fields.nome || !fields.mensagem || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(fields.email)) return json(400, { ok: false, message: "Preencha nome, e-mail e mensagem." });
   } else {
-    if (name === "lista-carqueja" && !KITS.includes(fields.kit)) fields.kit = "";
+    if (name === "lista-espera") {
+      if (!/^[a-z0-9-]{2,40}$/.test(fields.produto)) return json(400, { ok: false, message: "Produto inválido." });
+      if (!KITS.includes(fields.kit)) fields.kit = "";
+    }
     const v = fields.contato;
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v) && v.replace(/\D/g, "").length < 10) return json(400, { ok: false, message: "Digite um e-mail ou WhatsApp com DDD." });
   }
