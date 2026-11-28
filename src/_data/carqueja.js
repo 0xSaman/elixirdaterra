@@ -58,10 +58,10 @@ export default {
   spirit: {
     intro: [
       "Nas tradições de matriz africana, as folhas são sagradas: \"sem folha não há orixá\". Na Umbanda, várias casas colocam a carqueja entre as ervas de Ogum, o orixá dos caminhos e das batalhas, usadas no banho de descarrego.",
-      "Ela é chamada de \"amargura que limpa\": uma erva de purificação profunda, ligada ao descarrego e à quebra de demandas. As ervas de Ogum entram em banhos, defumações, firmezas e oferendas."
+      "Ela é chamada de \"amargura que limpa\": uma erva de purificação profunda, ligada ao descarrego e à quebra de magias. As ervas de Ogum entram em banhos, defumações, firmezas e oferendas."
     ],
     pillars: [
-      { title: "Limpeza", text: "Erva de descarrego: usada para tirar o peso acumulado e renovar o corpo e a casa.", refs: [10, 11] },
+      { title: "Limpeza", text: "Erva de descarrego: usada no banho para tirar o peso acumulado e renovar as forças.", refs: [10, 11] },
       { title: "Proteção", text: "Ligada a Ogum, que abre caminhos e corta o que atrapalha. Há casas que também a associam a Iansã.", refs: [11, 12] },
       { title: "Firmeza", text: "Cresce em terra seca e pedregosa, à beira das estradas. Uma planta que se mantém de pé onde poucas resistem.", refs: [14, 11] }
     ],
